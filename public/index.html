@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Firebase Learning</title>
+    <meta charset="utf-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"/>
+    <meta id="viewport" name="viewport" content="width=device-width, initial-scale=1"/>
+    <link rel="stylesheet" href="css/main.css">
+  </head>
+  <body>
+    Logged in:  <strong><span id="user">No user logged in.</span></strong>
+    <div hidden id="user-pic"></div>
+    <br /><br />
+
+    <button id="sign-in">
+        Sign-in with Google
+    </button>
+    <br /><br />
+
+    <button id="sign-out">
+        Sign-out with Google
+    </button>
+    <br /><br />
+    <hr />
+    <br />
+
+    <button id="btn-save">
+        Test Save Firestore
+    </button>
+    <br /><br />
+
+    <button id="btn-update">
+      Test Update Firestore
+    </button>
+    <br /><br />
+
+    <!-- Add Firebase JavaScript SDK libs we care about. -->
+
+    <script src="/__/firebase/8.2.4/firebase-app.js"></script>
+    <script src="/__/firebase/8.2.4/firebase-auth.js"></script>
+    <!-- <script src="/__/firebase/8.2.4/firebase-storage.js"></script> -->
+    <script src="/__/firebase/8.2.4/firebase-firestore.js"></script>
+    <!-- <script src="/__/firebase/8.2.4/firebase-functions.js"></script> -->
+
+    <script src="/__/firebase/init.js?useEmulator=true"></script>
+    
+    <script src="js/main.js" type="module"></script>
+  </body>
+</html>
