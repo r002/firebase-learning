@@ -85,42 +85,96 @@ const userPicEl = document.getElementById('user-pic')
 
 document.getElementById('sign-in').addEventListener('click', signIn)
 document.getElementById('sign-out').addEventListener('click', signOut)
-document.getElementById('btn-save')
+document.getElementById('btn-save-user')
   .addEventListener('click', e => {
-    testSave()
+    saveUser()
   })
-document.getElementById('btn-update')
+document.getElementById('btn-update-user')
   .addEventListener('click', e => {
-    testUpdate()
+    updateUser()
   })
 
-// initialize Firebase
+document.getElementById('btn-save-article')
+  .addEventListener('click', e => {
+    saveArticle()
+  })
+
+document.getElementById('btn-update-article')
+  .addEventListener('click', e => {
+    updateArticle()
+  })
+
+// Initialize Firebase
 initFirebaseAuth()
-
-// if (location.hostname === 'localhost') {
-//   firebase.functions().useEmulator('localhost', 5001)
-//   firebase.firestore().useEmulator('localhost', 8080)
-//   firebase.auth().useEmulator('http://localhost:9099/')
-// }
 
 /// ////////////////////////////
 
-function testSave () {
-  firebase.firestore().collection('authorized').doc('BN5nZuvERU0dzt7C9CCqoGbDFq4e').set({
+function saveArticle () {
+  firebase.firestore().collection('articles').add({
+    author: 'Diana Prince',
     email: 'diana@gmail.com',
-    firstname: 'Diana',
-    lastname: 'Prince',
-    logins: [firebase.firestore.Timestamp.now()]
+    tags: ['Diversity', 'Team Dynamics'],
+    datetime: firebase.firestore.FieldValue.serverTimestamp(),
+    content: 'My article!!!!!!!!!!!!',
+    uid: 'BN5nZuvERU0dzt7C9CCqoGbDFq4e'
   })
-    .then(function () {
+    .then(_ => {
       console.log('Document successfully written!')
     })
-    .catch(function (error) {
+    .catch(error => {
       console.error('Error writing document: ', error)
     })
 }
 
-function testUpdate () {
+function updateArticle () {
+  firebase.firestore().collection('articles').doc('6Va58mDcuErOOjcAlWDd').set({
+    author: 'Clark Kent',
+    uid: 'vhbDO15aDD0CjiWZrAOapjm3Jl5G',
+    email: 'clark@gmail.com',
+    tags: ['JLA', 'Avengers'],
+    datetime: firebase.firestore.FieldValue.serverTimestamp(),
+    content: 'This is the content of the article!!!!!'
+  })
+    .then(_ => {
+      console.log('Document successfully written!')
+    })
+    .catch(error => {
+      console.error('Error writing document: ', error)
+    })
+}
+
+function saveUser () {
+  firebase.firestore().collection('authorized').doc('vhbDO15aDD0CjiWZrAOapjm3Jl5G').set({
+    email: 'clark@gmail.com',
+    firstname: 'Clark',
+    lastname: 'Kent',
+    role: 'admin',
+    logins: [firebase.firestore.Timestamp.now()]
+  })
+    .then(_ => {
+      console.log('Document successfully written!')
+    })
+    .catch(error => {
+      console.error('Error writing document: ', error)
+    })
+}
+
+// function testSave () {
+//   firebase.firestore().collection('authorized').doc('BN5nZuvERU0dzt7C9CCqoGbDFq4e').set({
+//     email: 'diana@gmail.com',
+//     firstname: 'Diana',
+//     lastname: 'Prince',
+//     logins: [firebase.firestore.Timestamp.now()]
+//   })
+//     .then(function () {
+//       console.log('Document successfully written!')
+//     })
+//     .catch(function (error) {
+//       console.error('Error writing document: ', error)
+//     })
+// }
+
+function updateUser () {
   const userRef = firebase.firestore().collection('authorized').doc('BN5nZuvERU0dzt7C9CCqoGbDFq4e')
   userRef.update({
     logins: firebase.firestore.FieldValue.arrayUnion(firebase.firestore.Timestamp.now())

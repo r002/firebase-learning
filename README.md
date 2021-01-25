@@ -8,3 +8,5 @@ npm install eslint --save-dev
 npx eslint --init
 
 firebase emulators:export data
+
+git remote -v

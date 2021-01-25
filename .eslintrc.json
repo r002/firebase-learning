@@ -17,6 +17,7 @@
     "rules": {
     },
     "globals": {
-      "firebase": "readonly"
+      "firebase": "readonly",
+      "isAuthorized": "readonly"
   }
 }

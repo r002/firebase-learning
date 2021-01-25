@@ -2,8 +2,16 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
     match /{document=**} {
-      // allow read, write: if true;
-      allow read, write: if exists(/databases/$(database)/documents/authorized/$(request.auth.uid));
+      allow read, write: if true;
+      
+      // // For lab01__roles-auth-ex01
+      // allow read, write: if exists(/databases/$(database)/documents/authorized/$(request.auth.uid));
+
+      // For lab01__roles-auth-ex02
+      // allow read, write: if get(/databases/$(database)/documents/authorized/$(request.auth.uid)).data.role=='writer';
+
+      // This doesn't work!  No way to see if an array contains a value.
+      // allow read, write: if exists(/databases/$(database)/documents/array_example/authorized_uids/writers.data.$(request.auth.uid));
     }
   }
 }

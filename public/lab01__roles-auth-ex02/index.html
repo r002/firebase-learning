@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Lab01 | Firebase Learning</title>
+    <link rel="stylesheet" href="/css/main.css">
+  </head>
+  <body>
+    <h1>Lab01: Authorization-by-Roles Example 2</h1>
+
+    Logged in:  <strong><span id="user">No user logged in.</span></strong>
+    <div hidden id="user-pic"></div>
+    <br /><br />
+
+    <button id="sign-in">
+        Sign-in with Google
+    </button>
+    <br /><br />
+
+    <button id="sign-out">
+        Sign-out with Google
+    </button>
+    <br /><br />
+    <hr />
+    <br /><br />
+
+    <!-- Only add the Firebase JavaScript SDK libs we care about. -->
+    <script src="/__/firebase/8.2.4/firebase-app.js"></script>
+    <script src="/__/firebase/8.2.4/firebase-auth.js"></script>
+    <script src="/__/firebase/8.2.4/firebase-firestore.js"></script>
+    <script src="/__/firebase/init.js?useEmulator=true"></script>
+    
+    <script src="lab01__roles-auth-ex02.js"></script>
+    <script src="/js/auth_general.js"></script>
+  </body>
+</html>
