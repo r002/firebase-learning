@@ -15,6 +15,7 @@ export async function isAuthorized(user) {
             // console.log('Document data:', doc.data())
             USER = doc.data();
             console.log('>> authorization passed!', USER.id, USER.role);
+            renderUserProfile();
             renderArticles();
             return true;
         }
@@ -30,6 +31,10 @@ export async function isAuthorized(user) {
         return false;
     }
 }
+function renderUserProfile() {
+    document.getElementById('userProfileBar')
+        .innerHTML = USER.role;
+}
 /* https://stackoverflow.com/questions/52100103/getting-all-documents-from-one-collection-in-firestore */
 async function loadArticles() {
     const qs = await firebase.firestore().collection('articles')
@@ -43,24 +48,16 @@ async function renderArticles() {
     const articles = await loadArticles();
     console.log('>> renderArticles()', articles);
     document.getElementById('articles')
-        .innerHTML = ArticleList(articles, USER.role);
+        .innerHTML = ArticleList(articles, USER);
 }
-// function emptyArticles () : void {
-//   document.getElementById('articles')!
-//     .innerHTML = ''
-// }
-async function loadUser() {
-    const doc = await firebase.firestore().collection('authorized')
-        .doc(firebase.auth().currentUser.uid)
-        .withConverter(models.userConverter).get();
-    const user = doc.data();
-    console.log('## user fullname', user.fullname);
+function emptyArticles() {
+    document.getElementById('articles')
+        .innerHTML = '';
 }
-/* https://stackoverflow.com/questions/40640663/strictnullchecks-and-getelementbyid */
-document.getElementById('test')
-    .addEventListener('click', e => {
-    loadUser();
-});
+document.addEventListener('signoutEvent', (e) => {
+    // console.log('signoutEvent received!', e)
+    emptyArticles();
+}, false);
 // window.onload = () => {
 //   console.log('lab02 loaded!!!!')
 //   renderArticles()

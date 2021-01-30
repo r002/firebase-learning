@@ -54,6 +54,9 @@ function signInUser (user) {
 }
 
 function signOut () {
+  const signoutEvent = new Event('signoutEvent', { bubbles: true })
+  document.dispatchEvent(signoutEvent)
+  // console.log('>> signout event dispatched!')
   document.querySelector('#user').innerHTML = 'No user logged in!!!'
   if (firebase.auth().currentUser != null) {
     console.log('>> user signing out:', firebase.auth().currentUser.email)
