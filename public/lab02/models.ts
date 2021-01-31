@@ -11,7 +11,7 @@ export class Article {
     public uid: string
   ) {
     this.tagsStr = tags.reduce((acc, tag) => {
-      acc += `#${tag}, `
+      acc += `<a href="javascript:getArticlesByTag('${tag}');" style="background:yellow;">#${tag}</a>, `
       return acc
     }, '')
   }
@@ -45,9 +45,8 @@ export class User {
     public email: string,
     public firstname: string,
     public lastname: string,
-    public logins: [string],
-    public role: string,
-    public uid: string
+    public logins: [Date],
+    public role: string
   ) {
     this.fullname = `${firstname} ${lastname}`
   }
@@ -66,6 +65,6 @@ export const userConverter = {
     const data = snapshot.data(options)
     const id = snapshot.id
     return new User(id, data.email, data.firstname, data.lastname, data.logins,
-      data.role, data.uid)
+      data.role)
   }
 }

@@ -4,12 +4,12 @@
  */
 export function ArticleList(articles, user) {
     /*
-     * Modify the 'command palette' depending on the user's role.
+     * Modify the 'actions palette' depending on the user's role.
      * (This is just for the GUI. We need to configure Firestore
      *  security rules too!)
      */
     return articles.reduce((acc, article) => {
-        const actions = ['Read']; // All authorized users are the entitled 'View' permission.
+        const actions = ['Read']; // All authorized users are the entitled 'Read' permission.
         if (user.role === 'admin') {
             actions.push('Edit');
             actions.push('Delete');
@@ -25,12 +25,13 @@ export function ArticleList(articles, user) {
         }, '');
         acc += `<h3>${article.title}</h3>
             <em>by ${article.author}</em><br />
-            <strong>${(article.datetime).toDate()}</strong><br />
+            <strong>${(article.datetime).toDate()}</strong><br /><br />
+            Tags: <strong>${article.tagsStr}</strong><br /><br />
             ---<br />
             <strong>Permissions: </strong>${actionsHtml}
             <hr />`;
         return acc;
-    }, '');
+    }, '<h2>Articles:</h2>');
 }
 /* Example of Event Delegation */
 document.body.addEventListener('click', e => {

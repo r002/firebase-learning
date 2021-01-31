@@ -10,7 +10,7 @@ export class Article {
         this.title = title;
         this.uid = uid;
         this.tagsStr = tags.reduce((acc, tag) => {
-            acc += `#${tag}, `;
+            acc += `<a href="javascript:getArticlesByTag('${tag}');" style="background:yellow;">#${tag}</a>, `;
             return acc;
         }, '');
     }
@@ -35,14 +35,13 @@ export const articleConverter = {
     }
 };
 export class User {
-    constructor(id, email, firstname, lastname, logins, role, uid) {
+    constructor(id, email, firstname, lastname, logins, role) {
         this.id = id;
         this.email = email;
         this.firstname = firstname;
         this.lastname = lastname;
         this.logins = logins;
         this.role = role;
-        this.uid = uid;
         this.fullname = `${firstname} ${lastname}`;
     }
 }
@@ -58,6 +57,6 @@ export const userConverter = {
     fromFirestore: function (snapshot, options) {
         const data = snapshot.data(options);
         const id = snapshot.id;
-        return new User(id, data.email, data.firstname, data.lastname, data.logins, data.role, data.uid);
+        return new User(id, data.email, data.firstname, data.lastname, data.logins, data.role);
     }
 };
