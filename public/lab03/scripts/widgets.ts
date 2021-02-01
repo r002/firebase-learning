@@ -11,14 +11,12 @@ export function ArticleList (articles: Article[], user: User) : string {
      * (This is just for the GUI. We need to configure Firestore
      *  security rules too!)
      */
-    const actions = ['Read'] // All authorized users are the entitled 'Read' permission.
-    if (user.role === 'admin') {
-      actions.push('Edit')
-      actions.push('Delete')
-    } else if (user.role === 'writer' && user.id === article.uid) {
-      actions.push('Edit')
-      actions.push('Delete')
+    const actionsBuilder = (role: string, uid: string, aid: string) => {
+      if (role === 'admin') return ['Read', 'Edit', 'Delete']
+      else if (role === 'writer' && uid === aid) return ['Read', 'Edit', 'Delete']
+      else return ['Read']
     }
+    const actions = actionsBuilder(user.role, user.id, article.uid)
 
     const actionsHtml = actions.reduce((acc, action) => {
       acc += `<button class='btnArticle' data-articleId='${article.id}' 
@@ -33,7 +31,7 @@ export function ArticleList (articles: Article[], user: User) : string {
             <strong>Permissions: </strong>${actionsHtml}
             <hr />`
     return acc
-  }, '')
+  }, '<h2>Articles:</h2>')
 }
 
 export function ReadingPane () {

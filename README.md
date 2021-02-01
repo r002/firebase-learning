@@ -7,7 +7,7 @@ npm init \
 npm install eslint --save-dev \
 npx eslint --init
 
-firebase emulators:export data
+firebase emulators:export data\lab03
 
 git remote -v
 
