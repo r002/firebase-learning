@@ -9,10 +9,10 @@ export function ArticleList(articles, user) {
          * (This is just for the GUI. We need to configure Firestore
          *  security rules too!)
          */
-        const actionsBuilder = (role, uid, aid) => {
+        const actionsBuilder = (role, uid, auid) => {
             if (role === 'admin')
                 return ['Read', 'Edit', 'Delete'];
-            else if (role === 'writer' && uid === aid)
+            else if (role === 'writer' && uid === auid)
                 return ['Read', 'Edit', 'Delete'];
             else
                 return ['Read'];
