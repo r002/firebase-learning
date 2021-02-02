@@ -16,7 +16,7 @@ function signIn() {
     const provider = new firebase.auth.GoogleAuthProvider();
     firebase.auth().signInWithPopup(provider);
 }
-export function signInUser(user) {
+export function signInUser() {
     document.querySelector('#user').innerHTML = getUserName();
     userPicEl.removeAttribute('hidden');
     const profilePicUrl = getProfilePicUrl();

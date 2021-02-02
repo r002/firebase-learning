@@ -34,6 +34,12 @@ export const articleConverter = {
         return new Article(id, data.author, data.content, data.datetime, data.email, data.tags, data.title, data.uid);
     }
 };
+export var Role;
+(function (Role) {
+    Role[Role["reader"] = 0] = "reader";
+    Role[Role["writer"] = 1] = "writer";
+    Role[Role["admin"] = 2] = "admin";
+})(Role || (Role = {}));
 export class User {
     constructor(id, email, firstname, lastname, logins, role, uid) {
         this.id = id;
@@ -58,6 +64,9 @@ export const userConverter = {
     fromFirestore: function (snapshot, options) {
         const data = snapshot.data(options);
         const id = snapshot.id;
-        return new User(id, data.email, data.firstname, data.lastname, data.logins, data.role, data.uid);
+        const typedRoleString = data.role;
+        const role = Role[typedRoleString];
+        console.log('###### fromFirestore after type guard check:', Role[role]);
+        return new User(id, data.email, data.firstname, data.lastname, data.logins, role, data.uid);
     }
 };

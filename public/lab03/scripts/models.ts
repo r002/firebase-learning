@@ -38,6 +38,12 @@ export const articleConverter = {
   }
 }
 
+export enum Role {
+  reader,
+  writer,
+  admin,
+}
+
 export class User {
   fullname: string;
   constructor (
@@ -46,7 +52,7 @@ export class User {
     public firstname: string,
     public lastname: string,
     public logins: [string],
-    public role: string,
+    public role: Role,
     public uid: string
   ) {
     this.fullname = `${firstname} ${lastname}`
@@ -64,8 +70,11 @@ export const userConverter = {
   },
   fromFirestore: function (snapshot: any, options: any) {
     const data = snapshot.data(options)
-    const id = snapshot.id
+    const id: string = snapshot.id
+    const typedRoleString: keyof typeof Role = data.role
+    const role = Role[typedRoleString]
+    console.log('###### fromFirestore after type guard check:', Role[role])
     return new User(id, data.email, data.firstname, data.lastname, data.logins,
-      data.role, data.uid)
+      role, data.uid)
   }
 }

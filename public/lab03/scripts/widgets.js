@@ -1,3 +1,4 @@
+import { Role } from './models.js';
 /*
  * Accepts an array of Article objects and returns HTML
  * of an ArticleList to render.
@@ -10,9 +11,9 @@ export function ArticleList(articles, user) {
          *  security rules too!)
          */
         const actionsBuilder = (role, uid, auid) => {
-            if (role === 'admin')
+            if (role === Role.admin)
                 return ['Read', 'Edit', 'Delete'];
-            else if (role === 'writer' && uid === auid)
+            else if (role === Role.writer && uid === auid)
                 return ['Read', 'Edit', 'Delete'];
             else
                 return ['Read'];

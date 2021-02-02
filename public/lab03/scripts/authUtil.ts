@@ -21,7 +21,7 @@ function signIn () {
   firebase.auth().signInWithPopup(provider)
 }
 
-export function signInUser (user: any) {
+export function signInUser () {
   document.querySelector('#user')!.innerHTML = getUserName()
   userPicEl.removeAttribute('hidden')
   const profilePicUrl = getProfilePicUrl()

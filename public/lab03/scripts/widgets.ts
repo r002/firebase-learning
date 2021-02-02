@@ -1,4 +1,4 @@
-import { Article, User } from './models.js'
+import { Article, User, Role } from './models.js'
 
 /*
  * Accepts an array of Article objects and returns HTML
@@ -11,9 +11,9 @@ export function ArticleList (articles: Article[], user: User) : string {
      * (This is just for the GUI. We need to configure Firestore
      *  security rules too!)
      */
-    const actionsBuilder = (role: string, uid: string, auid: string) => {
-      if (role === 'admin') return ['Read', 'Edit', 'Delete']
-      else if (role === 'writer' && uid === auid) return ['Read', 'Edit', 'Delete']
+    const actionsBuilder = (role: Role, uid: string, auid: string) => {
+      if (role === Role.admin) return ['Read', 'Edit', 'Delete']
+      else if (role === Role.writer && uid === auid) return ['Read', 'Edit', 'Delete']
       else return ['Read']
     }
     const actions = actionsBuilder(user.role, user.id, article.uid)

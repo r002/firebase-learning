@@ -16,12 +16,10 @@ function authStateObserver(user) {
         // Once the user is authenticated against Google, check if the user is authorized.
         console.log('>> user successfully autenthicated by Google:', firebase.auth().currentUser.email);
         console.log('>> Now checking authorization...');
-        const signinEvent = new Event('signinEvent', { bubbles: true });
-        document.dispatchEvent(signinEvent);
         isAuthorized(user).then(authorized => {
             // console.log('>> authorized', authorized)
             if (authorized) {
-                authUtil.signInUser(user);
+                authUtil.signInUser();
             }
             else {
                 // console.log("Sorry!!!  You're not authorized!", user.email)
@@ -45,7 +43,7 @@ async function isAuthorized(user) {
         if (doc.exists) {
             // console.log('Document data:', doc.data())
             USER = doc.data();
-            console.log('>> authorization passed!', USER.id, USER.role);
+            console.log('>> authorization passed!', USER.id, models.Role[USER.role]);
             renderUserProfile();
             renderArticles();
             return true;
@@ -64,21 +62,27 @@ async function isAuthorized(user) {
 }
 function renderUserProfile() {
     document.getElementById('userProfileBar')
-        .innerHTML = USER.role;
+        .innerHTML = models.Role[USER.role];
 }
-// const articlesMap = new Map()
 /* https://stackoverflow.com/questions/52100103/getting-all-documents-from-one-collection-in-firestore */
 async function loadArticles() {
     const qs = await firebase.firestore().collection('articles')
         .orderBy('datetime').limit(3)
         .withConverter(models.articleConverter).get();
     const articles = qs.docs.map((doc) => doc.data());
-    console.log('#### article example', articles[0]);
+    // console.log('#### article example', articles[0])
     return articles;
 }
+let articlesMap;
 async function renderArticles() {
     const articles = await loadArticles();
-    console.log('>> renderArticles()', articles);
+    // console.log('>> renderArticles()', articles)
+    const arr = articles.reduce((acc, article) => {
+        // acc.set(article.id, article)
+        // return acc
+        return [...acc, [article.id, article]];
+    }, []);
+    articlesMap = new Map(arr);
     document.getElementById('articles')
         .innerHTML = ArticleList(articles, USER);
 }
@@ -98,8 +102,8 @@ document.body.addEventListener('click', e => {
     ;
 });
 function handleArticleAction(el) {
-    // const article = el.getAttribute('data-article') as models.Article
     console.log('>> handleArticleAction', el.getAttribute('data-articleId'), el.getAttribute('data-action'));
-    // document.getElementById('reading-pane')!
-    //   .innerHTML = article.content
+    const articleId = el.getAttribute('data-articleId');
+    document.getElementById('reading-pane')
+        .innerHTML = articlesMap.get(articleId).content;
 }
