@@ -19,18 +19,16 @@ export function ArticleList (articles: Article[], user: User) : string {
     const actions = actionsBuilder(user.role, user.id, article.uid)
 
     const actionsHtml = actions.reduce((acc, action) => {
-      acc += `<button class='btnArticle' data-articleId='${article.id}' 
+      return acc + `<button class='btnArticle' data-articleId='${article.id}' 
               data-action='${action}'>${action}</button> `
-      return acc
     }, '')
 
-    acc += `<h3>${i} | ${article.title}</h3>
+    return acc + `<h3>${i} | ${article.title}</h3>
             <em>by ${article.author}</em><br />
             <strong>${(article.datetime).toDate()}</strong><br />
             ---<br />
             <strong>Permissions: </strong>${actionsHtml}
             <hr />`
-    return acc
   }, '<h2>Articles:</h2>')
 }
 
