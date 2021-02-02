@@ -18,7 +18,6 @@ function initFirebaseAuth () {
 function authStateObserver (user: any) {
   if (user) { // User is successfully autenthicated by Google!
     // Once the user is authenticated against Google, check if the user is authorized.
-
     console.log('>> user successfully autenthicated by Google:', firebase.auth().currentUser.email)
     console.log('>> Now checking authorization...')
 
@@ -44,7 +43,6 @@ async function isAuthorized (user: any) {
   try {
     const docRef = firebase.firestore().collection('authorized').doc(user.uid)
     const doc = await docRef.withConverter(models.userConverter).get()
-    // console.log('>> role check', doc.data())
     if (doc.exists) {
       // console.log('Document data:', doc.data())
       USER = doc.data()
@@ -78,7 +76,6 @@ async function loadArticles () : Promise<models.Article[]> {
     .withConverter(models.articleConverter).get()
 
   const articles = qs.docs.map((doc: any) => doc.data())
-  // console.log('#### article example', articles[0])
   return articles
 }
 
@@ -87,8 +84,6 @@ async function renderArticles () : Promise<void> {
   const articles = await loadArticles()
   // console.log('>> renderArticles()', articles)
   const arr = articles.reduce((acc: any, article: models.Article) => {
-    // acc.set(article.id, article)
-    // return acc
     return [...acc, [article.id, article]]
   }, [])
   articlesMap = new Map(arr)

@@ -39,7 +39,6 @@ async function isAuthorized(user) {
     try {
         const docRef = firebase.firestore().collection('authorized').doc(user.uid);
         const doc = await docRef.withConverter(models.userConverter).get();
-        // console.log('>> role check', doc.data())
         if (doc.exists) {
             // console.log('Document data:', doc.data())
             USER = doc.data();
@@ -70,7 +69,6 @@ async function loadArticles() {
         .orderBy('datetime').limit(3)
         .withConverter(models.articleConverter).get();
     const articles = qs.docs.map((doc) => doc.data());
-    // console.log('#### article example', articles[0])
     return articles;
 }
 let articlesMap;
@@ -78,8 +76,6 @@ async function renderArticles() {
     const articles = await loadArticles();
     // console.log('>> renderArticles()', articles)
     const arr = articles.reduce((acc, article) => {
-        // acc.set(article.id, article)
-        // return acc
         return [...acc, [article.id, article]];
     }, []);
     articlesMap = new Map(arr);

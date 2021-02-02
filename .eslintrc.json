@@ -15,6 +15,10 @@
         "@typescript-eslint"
     ],
     "rules": {
+      // note you must disable the base rule as it can report incorrect errors
+      // https://github.com/typescript-eslint/typescript-eslint/blob/master/packages/eslint-plugin/docs/rules/no-unused-vars.md#options
+      "no-unused-vars": "off",
+      "@typescript-eslint/no-unused-vars": ["error"]
     },
     "globals": {
       "firebase": "readonly",
