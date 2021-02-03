@@ -1,0 +1,12 @@
+#editor_view {
+  color: black;
+  width: 1200px;
+  height: 1600px;
+  padding: 20px;
+  box-sizing: border-box;
+
+  font-family: Georgia, serif;
+  font-size: 20px;
+  letter-spacing: 1px;
+  line-height: 1.8;
+}

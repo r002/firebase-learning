@@ -12,7 +12,8 @@ firebase emulators:export data\lab03
 git remote -v
 
 https://stackoverflow.com/questions/39632667/how-do-i-kill-the-process-currently-using-a-port-on-localhost-in-windows
+https://stackoverflow.com/questions/65586212/how-to-shutdown-firebase-emulator-properly-on-windows-10
 ```shell
-$> netstat -ano | findstr :<PORT>
+$> netstat -ano | findstr :8080
 $> taskkill /PID <PID> /F
 ```
