@@ -20,9 +20,10 @@ export function renderBody(article) {
     <span class="category highlight">${article.category.toUpperCase()}</span>
     <div class="title">${article.title}</div>
     <div class="title-date">🕒 ${article.dt}</div>
+    ${article.body}
   `;
 }
-export function read(content) {
+export function transformText(content) {
     // Split the text content into its individual consituient lines.
     const lines = content.split('\n');
     console.log('>> lines', lines);
@@ -39,18 +40,17 @@ export function read(content) {
     // console.log('>> match', matches)
     // const movie: string = matches?.groups?.movie ?? 'No movie specified.'
     // const song: string = matches?.groups?.song ?? 'No song specified.'
-    const re = new RegExp('' +
-        /<movie>(?<movie>.*)<\/movie>.*/.source +
-        /<song>(?<song>.*)<\/song>.*/.source +
-        /<title>(?<title>.*)<\/title>.*/.source +
-        /<category>(?<category>.*)<\/category>/.source, 'gs');
-    console.log('>>>> re:', re);
+    const patterns = [
+        /<movie>(?<movie>.*)<\/movie>/,
+        /<song>(?<song>.*)<\/song>/,
+        /<title>(?<title>.*)<\/title>/,
+        /<category>(?<category>.*)<\/category>/,
+        /<\/datetime>(?<body>.*)$/
+    ];
+    const re = new RegExp(patterns.map(pattern => pattern.source).join('.*'), 'gs');
+    console.log('>> re:', re);
     const matches = re.exec(content);
     console.log('>> match', matches);
-    const movie = matches?.groups?.movie ?? 'No movie specified.';
-    const song = matches?.groups?.song ?? 'No song specified.';
-    const title = matches?.groups?.title ?? 'Untitled';
-    const category = matches?.groups?.category ?? 'Uncategorized';
     const dt = new Date();
     const options = {
         weekday: 'long',
@@ -60,14 +60,20 @@ export function read(content) {
         hour: '2-digit',
         minute: '2-digit'
     };
+    let body = matches?.groups?.body?.trim() ?? 'No body.';
+    // body = body.replaceAll(/_.*_/g, '<em>$&</em>') // Almost works but doesn't eliminate the underscores. :(
+    body = body.replaceAll(/_.*?_/gs, match => `<em>${match.slice(1, -1)}</em>`);
+    body = body.replaceAll(/\*\*.*?\*\*/gs, match => `<strong>${match.slice(2, -2)}</strong>`); // Use RegEx-- but need to escape!
+    console.log('$$$$$$$$ body', body);
     const article = {
-        movie: movie,
-        song: song,
-        title: title,
-        category: category,
-        dt: dt.toLocaleTimeString('en-us', options)
+        movie: matches?.groups?.movie ?? 'No movie specified.',
+        song: matches?.groups?.song ?? 'No song specified.',
+        title: matches?.groups?.title ?? 'Untitled',
+        category: matches?.groups?.category ?? 'Uncategorized',
+        dt: dt.toLocaleTimeString('en-us', options),
+        body: body
     };
-    // console.log(article)
+    // console.log('>> article', article)
     return article;
 }
 /// /////////////////////////////////////////
@@ -75,7 +81,7 @@ let renderWindow;
 function extractText() {
     const text = document.querySelector('#editor_view').value;
     // console.log('>> read text', text)
-    const article = read(text);
+    const article = transformText(text);
     renderWindow.document.querySelector('#feed').innerHTML = renderFeed(article);
     renderWindow.document.querySelector('#render_view').innerHTML = renderBody(article);
 }
