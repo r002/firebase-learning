@@ -48,7 +48,7 @@ export function transformText(content) {
         /<\/datetime>(?<body>.*)$/
     ];
     const re = new RegExp(patterns.map(pattern => pattern.source).join('.*'), 'gs');
-    console.log('>> re:', re);
+    // console.log('>> re:', re)
     const matches = re.exec(content);
     console.log('>> match', matches);
     const dt = new Date();
@@ -64,7 +64,7 @@ export function transformText(content) {
     // body = body.replaceAll(/_.*_/g, '<em>$&</em>') // Almost works but doesn't eliminate the underscores. :(
     body = body.replaceAll(/_.*?_/gs, match => `<em>${match.slice(1, -1)}</em>`);
     body = body.replaceAll(/\*\*.*?\*\*/gs, match => `<strong>${match.slice(2, -2)}</strong>`); // Use RegEx-- but need to escape!
-    console.log('$$$$$$$$ body', body);
+    // console.log('>> body', body)
     const article = {
         movie: matches?.groups?.movie ?? 'No movie specified.',
         song: matches?.groups?.song ?? 'No song specified.',
