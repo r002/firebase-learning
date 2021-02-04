@@ -107,3 +107,9 @@ document.getElementById('editor_view')
         extractText();
     }
 });
+// // Currently commented. During dev, I frequently reload the 'render' page for testing.
+// // Uncomment for production.
+// window.onunload = () => {
+//   console.log('>> closing children window if open.')
+//   renderWindow?.close()
+// }
