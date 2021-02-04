@@ -27,22 +27,30 @@ export function read(content) {
     const lines = content.split('\n');
     console.log('>> lines', lines);
     // We assume:
-    // The first line always be our movie trailer and
+    // The first line will always be our movie trailer and
     // the second line will always be our song.
-    let re = /<movie>(.*)<\/movie>/g;
-    let matches = re.exec(lines[0]);
-    console.log('>> matches', matches);
-    const movie = matches?.[1] ?? 'No movie specified.';
-    // const movie = matches != null ? matches[1] : null
-    re = /<song>(.*)<\/song>/g;
-    matches = re.exec(lines[1]);
-    const song = matches?.[1] ?? 'No song specified.';
-    re = /<title>(.*)<\/title>/g;
-    matches = re.exec(lines[2]);
-    const title = matches?.[1] ?? 'Untitled';
-    re = /<category>(.*)<\/category>/g;
-    matches = re.exec(lines[3]);
-    const category = matches?.[1] ?? 'Uncategorized';
+    // let re = /<movie>(.*)<\/movie>.*<song>(.*)<\/song>/gs // "global" and "single line"
+    // let matches = re.exec(content)
+    // console.log('>> matches', matches)
+    // const movie: string = matches?.[1] ?? 'No movie specified.'
+    // const song: string = matches?.[2] ?? 'No song specified.'
+    // let re = /<movie>(?<movie>.*)<\/movie>.*<song>(?<song>.*)<\/song>/gs // "global" and "single line"
+    // let matches = re.exec(content)
+    // console.log('>> match', matches)
+    // const movie: string = matches?.groups?.movie ?? 'No movie specified.'
+    // const song: string = matches?.groups?.song ?? 'No song specified.'
+    const re = new RegExp('' +
+        /<movie>(?<movie>.*)<\/movie>.*/.source +
+        /<song>(?<song>.*)<\/song>.*/.source +
+        /<title>(?<title>.*)<\/title>.*/.source +
+        /<category>(?<category>.*)<\/category>/.source, 'gs');
+    console.log('>>>> re:', re);
+    const matches = re.exec(content);
+    console.log('>> match', matches);
+    const movie = matches?.groups?.movie ?? 'No movie specified.';
+    const song = matches?.groups?.song ?? 'No song specified.';
+    const title = matches?.groups?.title ?? 'Untitled';
+    const category = matches?.groups?.category ?? 'Uncategorized';
     const dt = new Date();
     const options = {
         weekday: 'long',
@@ -61,17 +69,6 @@ export function read(content) {
     };
     // console.log(article)
     return article;
-    // let re2 = /(---)/g
-    // // let matches2 = re2.exec(text)
-    // // console.log(">> matches2", matches2)
-    // // let dt = matches2[1]
-    // // console.log("dt", dt)
-    // let dt = formatDatetime()
-    // content = content.replace(re, `${cat}`).
-    //             replace(re2, `${dt}`).
-    //             replace(/\n/g, "<br />")
-    // console.log(">> final output:", content)
-    // return content
 }
 /// /////////////////////////////////////////
 let renderWindow;
