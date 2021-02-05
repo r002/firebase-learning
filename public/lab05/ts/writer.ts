@@ -4,38 +4,31 @@
     Returns a JSON object of that content.
 */
 
-interface Article {
-  movie: string;
-  song: string; // | undefined;
-  title: string;
-  category: string;
-  dt: string;
-  body: string;
-}
+import { Entry } from './models.js'
 
-export function renderFeed (article: Article) : string {
+export function renderFeed (entry: Entry) : string {
   return `
-        <div class="title-bar side-header"><a href="javascript:goHome();">${article.dt}</a></div>
-        <iframe width="100%" height="300px" src="https://www.youtube.com/embed/${article.movie}"
+        <div class="title-bar side-header"><a href="javascript:goHome();">${entry.dt}</a></div>
+        <iframe width="100%" height="300px" src="https://www.youtube.com/embed/${entry.movie}"
                 frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" 
                 allowfullscreen></iframe>
-        <iframe width="100%" height="300px" src="https://www.youtube.com/embed/${article.song}"
+        <iframe width="100%" height="300px" src="https://www.youtube.com/embed/${entry.song}"
                 frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" 
                 allowfullscreen></iframe>
         <br /><br />
     `
 }
 
-export function renderBody (article: Article) : string {
+export function renderBody (entry: Entry) : string {
   return `
-    <span class="category highlight">${article.category.toUpperCase()}</span>
-    <div class="title">${article.title}</div>
-    <div class="title-date">🕒 ${article.dt}</div>
-    ${article.body}
+    <span class="category highlight">${entry.category.toUpperCase()}</span>
+    <div class="title">${entry.title}</div>
+    <div class="title-date">🕒 ${entry.dt}</div>
+    ${entry.body}
   `
 }
 
-export function transformText (content: string) : Article {
+export function transformText (content: string) : Entry {
 // Split the text content into its individual consituient lines.
   const lines = content.split('\n')
   console.log('>> lines', lines)
@@ -85,7 +78,7 @@ export function transformText (content: string) : Article {
   body = body.replaceAll(/\*\*.*?\*\*/gs, match => `<strong>${match.slice(2, -2)}</strong>`) // Use RegEx-- but need to escape!
   // console.log('>> body', body)
 
-  const article: Article = {
+  const entry: Entry = {
     movie: matches?.groups?.movie ?? 'No movie specified.',
     song: matches?.groups?.song ?? 'No song specified.',
     title: matches?.groups?.title ?? 'Untitled',
@@ -94,51 +87,5 @@ export function transformText (content: string) : Article {
     body: body
   }
   // console.log('>> article', article)
-  return article
+  return entry
 }
-
-/// /////////////////////////////////////////
-
-let renderWindow: Window | null
-
-function extractText () : void {
-  const text: string = (<HTMLTextAreaElement>document.querySelector('#editor_view')).value
-  // console.log('>> read text', text)
-  const article: Article = transformText(text)
-  renderWindow!.document.querySelector('#feed')!.innerHTML = renderFeed(article)
-  renderWindow!.document.querySelector('#render_view')!.innerHTML = renderBody(article)
-}
-
-// Only runs once upon initial page load.
-function openRender () : void {
-  renderWindow =
-    window.open('render.html', 'renderTarget',
-      'height=1600,width=1600,status=yes,toolbar=no,menubar=no,location=no')
-}
-
-// This event hander will listen for messages from the child window.
-window.addEventListener('message', function () {
-  // console.log('child message received!')
-  extractText()
-}, false)
-
-// Runs on initial page load.
-window.onload = () => {
-  // console.log('>> Ready!')
-  openRender()
-}
-
-document.getElementById('editor_view')!
-  .addEventListener('keyup', e => {
-    // console.log(">> key up", e)
-    if (e.ctrlKey && e.key === 'Enter') {
-      extractText()
-    }
-  })
-
-// // Currently commented. During dev, I frequently reload the 'render' page for testing.
-// // Uncomment for production.
-// window.onunload = () => {
-//   console.log('>> closing children window if open.')
-//   renderWindow?.close()
-// }

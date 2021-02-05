@@ -66,7 +66,7 @@ export const userConverter = {
         const id = snapshot.id;
         const typedRoleString = data.role;
         const role = Role[typedRoleString];
-        console.log('###### fromFirestore after type guard check:', Role[role]);
+        // console.log('###### fromFirestore after type guard check:', Role[role])
         return new User(id, data.email, data.firstname, data.lastname, data.logins, role, data.uid);
     }
 };

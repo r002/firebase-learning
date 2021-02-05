@@ -1,3 +1,12 @@
+export interface Entry {
+  movie: string;
+  song: string; // | undefined;
+  title: string;
+  category: string;
+  dt: string;
+  body: string;
+}
+
 export class Article {
   tagsStr: string;
   constructor (
@@ -73,7 +82,7 @@ export const userConverter = {
     const id: string = snapshot.id
     const typedRoleString: keyof typeof Role = data.role
     const role = Role[typedRoleString]
-    console.log('###### fromFirestore after type guard check:', Role[role])
+    // console.log('###### fromFirestore after type guard check:', Role[role])
     return new User(id, data.email, data.firstname, data.lastname, data.logins,
       role, data.uid)
   }

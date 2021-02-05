@@ -6,8 +6,6 @@
  <meta charset="utf-8"/>
  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"/>
  <meta id="viewport" name="viewport" content="width=device-width, initial-scale=1"/>
- <!-- <link rel="stylesheet" href="css/index.css"> -->
- <!-- <link rel="stylesheet" href="css/general.css"> -->
  <link rel="stylesheet" href="./css/render.css">
 </head>
 <body style="margin: 50px;">
@@ -19,19 +17,14 @@
       </div>
       &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 
-      <div id="render_view">
-
-        dddddd
-
-      </div>
+      <div id="render_view"></div>
   </div>
 
 </body>
-<!-- <script src="./scripts/render.js"></script> -->
 <script>
   window.onload = () => {
-    console.log('render loaded!!!!')
-    window.opener.postMessage('Message to the parent', '*')
+    console.log('render loaded! Trigger from Renderman!')
+    window.opener.postMessage('Trigger from Renderman!', '*')
   }
 </script>
 </html>
