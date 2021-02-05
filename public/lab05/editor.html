@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Lab04 | Firebase Learning</title>
+    <link rel="stylesheet" href="./css/main.css">
+    <link rel="stylesheet" href="./css/editor.css">
+  </head>
+  <body>
+    <h1>Lab04: The Editor</h1>
+
+    Logged in:  <strong><span id="user">No user logged in.</span></strong>
+    <div hidden id="user-pic"></div> 
+    <br />Role: <strong><span id="userProfileBar"></span></strong>
+    <br /><br />
+
+    <button id="sign-in">
+        Sign-in with Google
+    </button>
+    <br /><br />
+
+    <button id="sign-out">
+        Sign-out with Google
+    </button>
+    <br /><br />
+    <hr />
+
+    <textarea id="editor_view">
+      <movie>GiipCFnTbE8</movie>
+      <song>AdW6BBF22AY</song>
+      <title>Our First Blog Post!</title>
+      <category>Day in the Life</category>
+      <datetime>Automatically generated!</datetime>
+      <br />
+      An example of _italicized text!_ Formatting is _easy!_<br />
+      Here is an example of **bolded text**. Pretty **cool**, right?<br />
+      Is it possible to do both? **_Sure it is!_** No problem!<br />
+      Does _**order matter?**_ Nope!
+    </textarea>
+
+
+    <!-- Only add the Firebase JavaScript SDK libs we care about. -->
+    <script src="/__/firebase/8.2.4/firebase-app.js"></script>
+    <script src="/__/firebase/8.2.4/firebase-auth.js"></script>
+    <script src="/__/firebase/8.2.4/firebase-firestore.js"></script>
+    <script src="/__/firebase/init.js?useEmulator=true"></script>
+
+    <script src="./scripts/login.js" type="module"></script>
+    <script src="./scripts/editor.js" type="module"></script>
+  </body>
+</html>

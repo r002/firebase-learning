@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Lab04 | Firebase Learning</title>
+    <link rel="stylesheet" href="./css/main.css">
+  </head>
+  <body>
+    <h1>Lab04: The Editor</h1>
+
+    Logged in:  <strong><span id="user">No user logged in.</span></strong>
+    <div hidden id="user-pic"></div> 
+    <br />Role: <strong><span id="userProfileBar"></span></strong>
+    <br /><br />
+
+    <button id="sign-in">
+        Sign-in with Google
+    </button>
+    <br /><br />
+
+    <button id="sign-out">
+        Sign-out with Google
+    </button>
+    <br /><br />
+    <hr />
+
+    <div class="grid-container">
+      <div class="grid-item">
+        <div id="articles"></div>
+      </div>
+      <div class="grid-item">
+        <h2>Reading Pane:</h2>
+        <div id="reading-pane"></div>
+      </div>
+    </div>
+
+
+    <!-- Only add the Firebase JavaScript SDK libs we care about. -->
+    <script src="/__/firebase/8.2.4/firebase-app.js"></script>
+    <script src="/__/firebase/8.2.4/firebase-auth.js"></script>
+    <script src="/__/firebase/8.2.4/firebase-firestore.js"></script>
+    <script src="/__/firebase/init.js?useEmulator=true"></script>
+
+    <script src="./scripts/index.js" type="module"></script>
+  </body>
+</html>

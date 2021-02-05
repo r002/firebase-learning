@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title></title>
+    <link rel="stylesheet" href="./css/main.css">
+    <link rel="stylesheet" href="./css/editor.css">
+  </head>
+  <body>
+    <h1><span id='title'></span></h1>
+    <span id='loginBar'></span>
+    <hr />
+
+    <textarea id="editor_view">
+      <movie>GiipCFnTbE8</movie>
+      <song>AdW6BBF22AY</song>
+      <title>Our First Blog Post!</title>
+      <category>Day in the Life</category>
+      <datetime>Automatically generated!</datetime>
+      <br />
+      An example of _italicized text!_ Formatting is _easy!_<br />
+      Here is an example of **bolded text**. Pretty **cool**, right?<br />
+      Is it possible to do both? **_Sure it is!_** No problem!<br />
+      Does _**order matter?**_ Nope!
+    </textarea>
+
+
+    <!-- Only add the Firebase JavaScript SDK libs we care about. -->
+    <script src="/__/firebase/8.2.4/firebase-app.js"></script>
+    <script src="/__/firebase/8.2.4/firebase-auth.js"></script>
+    <script src="/__/firebase/8.2.4/firebase-firestore.js"></script>
+    <script src="/__/firebase/init.js?useEmulator=true"></script>
+
+    <script src="./js/editor.js" type="module"></script>
+  </body>
+</html>

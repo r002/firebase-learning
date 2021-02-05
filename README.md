@@ -17,3 +17,7 @@ https://stackoverflow.com/questions/65586212/how-to-shutdown-firebase-emulator-p
 $> netstat -ano | findstr :8080
 $> taskkill /PID <PID> /F
 ```
+
+# Misc Links
+- https://mariusschulz.com/blog/declaring-global-variables-in-typescript
+- https://stackoverflow.com/questions/52100103/getting-all-documents-from-one-collection-in-firestore
