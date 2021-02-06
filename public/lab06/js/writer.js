@@ -64,6 +64,8 @@ export function transformText(content) {
     // body = body.replaceAll(/_.*_/g, '<em>$&</em>') // Almost works but doesn't eliminate the underscores. :(
     body = body.replaceAll(/_.*?_/gs, match => `<em>${match.slice(1, -1)}</em>`);
     body = body.replaceAll(/\*\*.*?\*\*/gs, match => `<strong>${match.slice(2, -2)}</strong>`); // Use RegEx-- but need to escape!
+    body = body.replaceAll(/\n/g, '<br />');
+    body = '<br />' + body;
     // console.log('>> body', body)
     const entry = {
         movie: matches?.groups?.movie ?? 'No movie specified.',

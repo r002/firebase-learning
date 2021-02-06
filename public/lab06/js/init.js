@@ -5,7 +5,7 @@
  *  - The login bar
  *  - The navigation bar
  */
-const LAB_NO = 'Lab05';
+const LAB_NO = 'Lab06';
 /**
  * Set the page title.
  * @param pageTitle - The title of the HTML page you wish to set.

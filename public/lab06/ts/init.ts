@@ -6,7 +6,7 @@
  *  - The navigation bar
  */
 
-const LAB_NO = 'Lab05'
+const LAB_NO = 'Lab06'
 
 /**
  * Set the page title.
