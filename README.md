@@ -11,6 +11,8 @@ firebase emulators:export data\lab03
 
 git remote -v
 
+git log origin/main..HEAD
+
 https://stackoverflow.com/questions/39632667/how-do-i-kill-the-process-currently-using-a-port-on-localhost-in-windows
 https://stackoverflow.com/questions/65586212/how-to-shutdown-firebase-emulator-properly-on-windows-10
 ```shell
