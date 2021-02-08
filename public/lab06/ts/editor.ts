@@ -33,12 +33,12 @@ window.onload = () => {
   openRender()
 }
 
-function extractText () : void {
-  const text: string = (<HTMLTextAreaElement>document.querySelector('#editor_view')).value
-  // console.log('>> read text', text)
+function renderEditorText () : void {
+  const text: string = (<HTMLTextAreaElement>document.getElementById('editor_view')).value
+  console.log('>> editor_view text:', text)
   const entry: models.Entry = nginw.transformText(text)
   renderWindow!.document.querySelector('#feed')!.innerHTML = nginw.renderFeed(entry)
-  renderWindow!.document.querySelector('#render_view')!.innerHTML = nginw.renderBody(entry)
+  renderWindow!.document.querySelector('#render_view')!.innerHTML = nginw.renderArticle(entry)
   document.querySelector('#bodyWordCount')!.innerHTML = entry.wordCount.toString()
 }
 
@@ -77,6 +77,7 @@ ${article.content}
 `
   // Prepending ';' needed because of cast!
   ;(<HTMLTextAreaElement>document.getElementById('editor_view')).value = s
+  renderEditorText()
 }
 
 function createNewArticle () : void {
@@ -147,14 +148,14 @@ document.getElementById('editor_view')!
   .addEventListener('keyup', e => {
     // console.log(">> key up", e)
     if (e.ctrlKey && e.key === 'Enter') {
-      extractText()
+      renderEditorText()
     }
   })
 
 // This event hander will listen for messages from ALL child windows.
 window.addEventListener('message', event => {
   // console.log('^^^^^^^^^ child message received!', event)
-  if (event.data === 'Trigger from Renderman!') extractText()
+  if (event.data === 'Trigger from Renderman!') renderEditorText()
 }, false)
 
 // // Currently commented. During dev, I frequently reload the 'render' page for testing.

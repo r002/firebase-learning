@@ -15,11 +15,12 @@ export function renderFeed(entry) {
         <br /><br />
     `;
 }
-export function renderBody(entry) {
+export function renderArticle(entry) {
     return `
     <span class="category highlight">${entry.category.toUpperCase()}</span>
     <div class="title">${entry.title}</div>
     <div class="title-date">🕒 ${entry.dt}</div>
+    <div class="tags">🏷️ ${entry.tags}</div>
     ${entry.body}
   `;
 }
@@ -45,51 +46,31 @@ export function parseText(editorText) {
         content: matches?.groups?.body?.trim() ?? 'No body.'
     };
 }
-export function transformText(content) {
-    // We assume:
-    // The first line will always be our movie trailer and
-    // the second line will always be our song.
-    // let re = /<movie>(.*)<\/movie>.*<song>(.*)<\/song>/gs // "global" and "single line"
-    // let matches = re.exec(content)
-    // console.log('>> matches', matches)
-    // const movie: string = matches?.[1] ?? 'No movie specified.'
-    // const song: string = matches?.[2] ?? 'No song specified.'
-    // let re = /<movie>(?<movie>.*)<\/movie>.*<song>(?<song>.*)<\/song>/gs // "global" and "single line"
-    // let matches = re.exec(content)
-    // console.log('>> match', matches)
-    // const movie: string = matches?.groups?.movie ?? 'No movie specified.'
-    // const song: string = matches?.groups?.song ?? 'No song specified.'
+export function transformText(editorText) {
     const patterns = [
-        /<movie>(?<movie>.*)<\/movie>/,
         /<song>(?<song>.*)<\/song>/,
+        /<movie>(?<movie>.*)<\/movie>/,
         /<title>(?<title>.*)<\/title>/,
         /<category>(?<category>.*)<\/category>/,
-        /<\/datetime>(?<body>.*)$/
+        /<tags>(?<tags>.*)<\/tags>/,
+        /<datetime>(?<datetime>.*)<\/datetime>/,
+        /(?<body>.*)$/
     ];
-    const re = new RegExp(patterns.map(pattern => pattern.source).join('.*'), 'gs');
-    // console.log('>> re:', re)
-    const matches = re.exec(content);
-    // console.log('>> match', matches)
-    const dt = new Date();
-    const options = {
-        weekday: 'long',
-        year: 'numeric',
-        month: 'short',
-        day: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit'
-    };
+    const re = new RegExp(patterns.map(pattern => pattern.source).join('.*?'), 'gs');
+    console.log('>> re:', re);
+    const matches = re.exec(editorText);
+    console.log('>> matches:', matches);
     let body = matches?.groups?.body?.trim() ?? 'No body.';
     /**
      * Get the word count of the body.
     */
-    const wordCount = body.split(/\s+/).length;
-    // console.log('>>>> body split arr:', body.split(' '))
+    const wordCount = body === 'No body.' ? 0 : body.split(/\s+/).length;
+    // console.log('>>>> body split arr:', body.split(/\s+/))
     /**
      *  Perform the formatting.
     */
+    // console.log('>>> BODY BEFORE:', body)
     body = body.replaceAll(/### .*?\n\n/g, match => `<h3>${match.slice(4, -2)}</h3>`);
-    // console.log('>>> BODY:', body)
     // body = body.replaceAll(/_.*_/g, '<em>$&</em>') // Almost works but doesn't eliminate the underscores. :(
     body = body.replaceAll(/_.*?_/g, match => `<em>${match.slice(1, -1)}</em>`);
     body = body.replaceAll(/\*\*.*?\*\*/g, match => `<strong>${match.slice(2, -2)}</strong>`); // Use RegEx-- but need to escape!
@@ -101,10 +82,11 @@ export function transformText(content) {
         song: matches?.groups?.song ?? 'No song specified.',
         title: matches?.groups?.title ?? 'Untitled',
         category: matches?.groups?.category ?? 'Uncategorized',
-        dt: dt.toLocaleTimeString('en-us', options),
+        tags: matches?.groups?.tags ?? 'Untagged',
+        dt: matches?.groups?.datetime ?? 'Undated.',
         body: body,
         wordCount: wordCount
     };
-    // console.log('>> article', article)
+    // console.log('>> entry', entry)
     return entry;
 }

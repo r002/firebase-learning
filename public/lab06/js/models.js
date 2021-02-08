@@ -1,6 +1,6 @@
 // const firebase = (window as any).firebase
 export class Article {
-    constructor(id, author, uid, email, song, movie, title, category, tags, content, datetime // firebase.firestore.Timestamp
+    constructor(id, author, uid, email, song, movie, title, category, tags, content, datetime // firebase.firestore.FieldValue // firebase.firestore.Timestamp
     ) {
         this.id = id;
         this.author = author;
@@ -39,7 +39,7 @@ export const articleConverter = {
     fromFirestore: function (snapshot, options) {
         const data = snapshot.data(options);
         const id = snapshot.id;
-        return new Article(id, data.author, data.uid, data.email, data.song, data.movie, data.title, data.category, data.tags, data.content, data.datetime);
+        return new Article(id, data.author, data.uid, data.email, data.song, data.movie, data.title, data.category, data.tags, data.content, data.datetime.toDate());
     }
 };
 export var Role;

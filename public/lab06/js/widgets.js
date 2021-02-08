@@ -25,7 +25,7 @@ export function ArticleList(articles, user) {
         }, '');
         return acc + `<h3>${i} | ${article.title}</h3>
             <em>by ${article.author}</em><br />
-            <strong>${(article.datetime).toDate()}</strong><br />
+            <strong>${article.datetime}</strong><br />
             ---<br />
             <strong>Permissions: </strong>${actionsHtml}
             <hr />`;

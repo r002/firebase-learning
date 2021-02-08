@@ -5,6 +5,7 @@ export interface Entry {
   song: string; // | undefined;
   title: string;
   category: string;
+  tags: string;
   dt: string;
   body: string;
   wordCount: number;
@@ -24,7 +25,7 @@ export class Article {
     public category: string,
     public tags: string[],
     public content: string,
-    public datetime: any // firebase.firestore.Timestamp
+    public datetime: any // firebase.firestore.FieldValue // firebase.firestore.Timestamp
   ) {
     // this.datetime = firebase.firestore.FieldValue.serverTimestamp()
     this.tagsStr = tags.reduce((acc, tag) => {
@@ -64,7 +65,7 @@ export const articleConverter = {
       data.category,
       data.tags,
       data.content,
-      data.datetime
+      data.datetime.toDate()
     )
   }
 }
