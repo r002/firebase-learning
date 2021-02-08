@@ -1,7 +1,8 @@
 import './templateEngine.js';
 import { triggerUserProfile } from './authUtil.js';
 import init from './init.js';
-import * as writer from './writer.js';
+import * as models from './models.js';
+import * as nginw from './nginw.js';
 init('{LAB_NO} | The Editor - Part II');
 // Initialize Firebase
 const firebase = window.firebase;
@@ -29,21 +30,88 @@ window.onload = () => {
 function extractText() {
     const text = document.querySelector('#editor_view').value;
     // console.log('>> read text', text)
-    const entry = writer.transformText(text);
-    renderWindow.document.querySelector('#feed').innerHTML = writer.renderFeed(entry);
-    renderWindow.document.querySelector('#render_view').innerHTML = writer.renderBody(entry);
+    const entry = nginw.transformText(text);
+    renderWindow.document.querySelector('#feed').innerHTML = nginw.renderFeed(entry);
+    renderWindow.document.querySelector('#render_view').innerHTML = nginw.renderBody(entry);
+    document.querySelector('#bodyWordCount').innerHTML = entry.wordCount.toString();
 }
 // Only runs once upon initial page load.
 function openRender() {
     renderWindow =
         window.open('render.html', 'renderTarget', 'height=1600,width=1600,status=yes,toolbar=no,menubar=no,location=no');
 }
-// This event hander will listen for messages from ALL child windows.
-window.addEventListener('message', event => {
-    // console.log('^^^^^^^^^ child message received!', event)
-    if (event.data === 'Trigger from Renderman!')
-        extractText();
-}, false);
+/**
+ * GLOBAL ARTICLE OBJECT -- Rethink this design? 2/8/21
+ */
+let cachedArticle;
+/**
+ * Populates the GUI editor with contents of an Article.
+ *
+ * @param article
+ */
+function populateEditor(article) {
+    cachedArticle = article;
+    const s = '' +
+        // `<id>${article.id}</id>` +
+        // `<author>${article.author}</author>` +
+        // `<uid>${article.uid}</uid>` +
+        // `<email>${article.email}</email>` +
+        `<song>${article.song}</song>
+<movie>${article.movie}</movie>
+<title>${article.title}</title>
+<category>${article.category}</category>
+<tags>${article.tags.join(', ')}</tags>
+<datetime>${article.datetime}</datetime>
+
+${article.content}
+`;
+    document.getElementById('editor_view').value = s;
+}
+function createNewArticle() {
+    const defaultContent = '' +
+        `### Introduction
+
+An example of _italicized text!_ Formatting is _easy!_
+Here is an example of **bolded text**. Pretty **cool**, right?
+Is it possible to do both? **_Sure it is!_** No problem!
+Does _**order matter?**_ Nope!`;
+    const article = new models.Article('dummy article id - to be replaced by Firestore', firebase.auth().currentUser.displayName, firebase.auth().currentUser.uid, firebase.auth().currentUser.email, 'AdW6BBF22AY', // default song
+    'GiipCFnTbE8', // default movie
+    'createNewArticle title!!!!!!!!!', 'uncategorized', ['aaaa tag1', 'bbb tag2'], defaultContent, firebase.firestore.FieldValue.serverTimestamp());
+    firebase.firestore().collection('articles')
+        .withConverter(models.articleConverter)
+        .add(article)
+        .then((docRef) => {
+        article.id = docRef.id;
+        article.datetime = new Date(); // Only on new article creation, overwrite 'datetime'
+        console.log('>> doc added!', docRef.id, article);
+        populateEditor(article);
+    });
+}
+/**
+ * Saves article in Editor to Firestore.
+ */
+function saveArticle() {
+    const editorText = document.getElementById('editor_view').value;
+    const editorArticle = nginw.parseText(editorText);
+    // Overwrite specific fields with new fields from Editor.
+    cachedArticle.title = editorArticle.title;
+    cachedArticle.content = editorArticle.content;
+    firebase.firestore().collection('articles').doc(cachedArticle.id)
+        .withConverter(models.articleConverter)
+        .set(cachedArticle);
+}
+function loadArticle() {
+    firebase.firestore().collection('articles').doc('ETLWxrauv2QBbDB4pa9T')
+        .withConverter(models.articleConverter).get()
+        .then((doc) => {
+        const article = doc.data();
+        populateEditor(article);
+    });
+}
+document.getElementById('btnCreateNewArticle').addEventListener('click', createNewArticle);
+document.getElementById('btnSaveArticle').addEventListener('click', saveArticle);
+document.getElementById('btnLoadArticle').addEventListener('click', loadArticle);
 document.getElementById('editor_view')
     .addEventListener('keyup', e => {
     // console.log(">> key up", e)
@@ -51,6 +119,12 @@ document.getElementById('editor_view')
         extractText();
     }
 });
+// This event hander will listen for messages from ALL child windows.
+window.addEventListener('message', event => {
+    // console.log('^^^^^^^^^ child message received!', event)
+    if (event.data === 'Trigger from Renderman!')
+        extractText();
+}, false);
 // // Currently commented. During dev, I frequently reload the 'render' page for testing.
 // // Uncomment for production.
 // window.onunload = () => {

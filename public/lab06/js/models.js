@@ -1,14 +1,19 @@
+// const firebase = (window as any).firebase
 export class Article {
-    constructor(id, author, content, datetime, // firebase.firestore.Timestamp
-    email, tags, title, uid) {
+    constructor(id, author, uid, email, song, movie, title, category, tags, content, datetime // firebase.firestore.Timestamp
+    ) {
         this.id = id;
         this.author = author;
+        this.uid = uid;
+        this.email = email;
+        this.song = song;
+        this.movie = movie;
+        this.title = title;
+        this.category = category;
+        this.tags = tags;
         this.content = content;
         this.datetime = datetime;
-        this.email = email;
-        this.tags = tags;
-        this.title = title;
-        this.uid = uid;
+        // this.datetime = firebase.firestore.FieldValue.serverTimestamp()
         this.tagsStr = tags.reduce((acc, tag) => {
             acc += `#${tag}, `;
             return acc;
@@ -20,18 +25,21 @@ export const articleConverter = {
         return {
             // id: article.id,  // Not in ".data()" of the model!
             author: article.author,
-            content: article.content,
-            datetime: article.datetime,
+            uid: article.uid,
             email: article.email,
-            tags: article.tags,
+            song: article.song,
+            movie: article.movie,
             title: article.title,
-            uid: article.uid
+            category: article.category,
+            tags: article.tags,
+            content: article.content,
+            datetime: article.datetime
         };
     },
     fromFirestore: function (snapshot, options) {
         const data = snapshot.data(options);
         const id = snapshot.id;
-        return new Article(id, data.author, data.content, data.datetime, data.email, data.tags, data.title, data.uid);
+        return new Article(id, data.author, data.uid, data.email, data.song, data.movie, data.title, data.category, data.tags, data.content, data.datetime);
     }
 };
 export var Role;

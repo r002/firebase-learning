@@ -1,3 +1,5 @@
+// const firebase = (window as any).firebase
+
 export interface Entry {
   movie: string;
   song: string; // | undefined;
@@ -5,20 +7,26 @@ export interface Entry {
   category: string;
   dt: string;
   body: string;
+  wordCount: number;
 }
 
 export class Article {
+  // datetime: any;
   tagsStr: string;
   constructor (
     public id: string,
     public author: string,
-    public content: string,
-    public datetime: any, // firebase.firestore.Timestamp
+    public uid: string,
     public email: string,
-    public tags: [string],
+    public song: string,
+    public movie: string,
     public title: string,
-    public uid: string
+    public category: string,
+    public tags: string[],
+    public content: string,
+    public datetime: any // firebase.firestore.Timestamp
   ) {
+    // this.datetime = firebase.firestore.FieldValue.serverTimestamp()
     this.tagsStr = tags.reduce((acc, tag) => {
       acc += `#${tag}, `
       return acc
@@ -31,19 +39,33 @@ export const articleConverter = {
     return {
       // id: article.id,  // Not in ".data()" of the model!
       author: article.author,
-      content: article.content,
-      datetime: article.datetime,
+      uid: article.uid,
       email: article.email,
-      tags: article.tags,
+      song: article.song,
+      movie: article.movie,
       title: article.title,
-      uid: article.uid
+      category: article.category,
+      tags: article.tags,
+      content: article.content,
+      datetime: article.datetime
     }
   },
   fromFirestore: function (snapshot: any, options: any) {
     const data = snapshot.data(options)
     const id = snapshot.id
-    return new Article(id, data.author, data.content, data.datetime,
-      data.email, data.tags, data.title, data.uid)
+    return new Article(
+      id,
+      data.author,
+      data.uid,
+      data.email,
+      data.song,
+      data.movie,
+      data.title,
+      data.category,
+      data.tags,
+      data.content,
+      data.datetime
+    )
   }
 }
 
