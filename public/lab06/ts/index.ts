@@ -27,7 +27,8 @@ async function authStateObserver (user: any) : Promise<void> {
 
 async function loadArticles () : Promise<models.Article[]> {
   const qs = await firebase.firestore().collection('articles')
-    .orderBy('datetime', 'desc').limit(5)
+    // .orderBy('datetime', 'desc').limit(5)
+    .orderBy('datetime').limit(5)
     .withConverter(models.articleConverter).get()
 
   const articles = qs.docs.map((doc: any) => doc.data())

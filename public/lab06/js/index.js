@@ -23,7 +23,8 @@ async function authStateObserver(user) {
 }
 async function loadArticles() {
     const qs = await firebase.firestore().collection('articles')
-        .orderBy('datetime', 'desc').limit(5)
+        // .orderBy('datetime', 'desc').limit(5)
+        .orderBy('datetime').limit(5)
         .withConverter(models.articleConverter).get();
     const articles = qs.docs.map((doc) => doc.data());
     return articles;
