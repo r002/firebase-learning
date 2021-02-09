@@ -9,6 +9,7 @@ export interface Entry {
   dt: string;
   body: string;
   wordCount: number;
+  headingsCount: number;
 }
 
 export class Article {

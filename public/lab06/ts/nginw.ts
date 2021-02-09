@@ -82,6 +82,8 @@ export function transformText (editorText: string) : Entry {
   const wordCount: number = body === 'No body.' ? 0 : body.split(/\s+/).length
   // console.log('>>>> body split arr:', body.split(/\s+/))
 
+  const headingsCount: number = (body.match(/###/g) || []).length
+
   /**
    *  Perform the formatting.
   */
@@ -103,7 +105,8 @@ export function transformText (editorText: string) : Entry {
     tags: matches?.groups?.tags ?? 'Untagged',
     dt: matches?.groups?.datetime ?? 'Undated.',
     body: body,
-    wordCount: wordCount
+    wordCount: wordCount,
+    headingsCount: headingsCount
   }
   // console.log('>> entry', entry)
   return entry

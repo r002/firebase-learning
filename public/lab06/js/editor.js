@@ -30,8 +30,13 @@ window.onload = () => {
 };
 /**
  * GLOBAL ARTICLES MAP OBJECT -- Rethink this design? 2/8/21
+ * GLOBAL ARTICLE OBJECT -- Rethink this design? 2/8/21
  */
 let articlesMap;
+let cachedArticle;
+/**
+ * Loads article title buttons.
+ */
 async function loadArticleQuickList() {
     const qs = await firebase.firestore().collection('articles')
         .where('uid', '==', firebase.auth().currentUser.uid)
@@ -44,6 +49,9 @@ async function loadArticleQuickList() {
     articlesMap = new Map(arr);
     document.getElementById('articleQuickList').innerHTML = ArticleQuickList(articles);
 }
+/**
+ * Extracts the text in the Editor, formats it, and renders the text in the Renderman window.
+ */
 function renderEditorText() {
     const text = document.getElementById('editor_view').value;
     // console.log('>> editor_view text:', text)
@@ -51,16 +59,25 @@ function renderEditorText() {
     renderWindow.document.querySelector('#feed').innerHTML = nginw.renderFeed(entry);
     renderWindow.document.querySelector('#render_view').innerHTML = nginw.renderArticle(entry);
     document.querySelector('#bodyWordCount').innerHTML = entry.wordCount.toString();
-}
-// Only runs once upon initial page load.
-function openRender() {
-    renderWindow =
-        window.open('render.html', 'renderTarget', 'height=1600,width=1600,status=yes,toolbar=no,menubar=no,location=no');
+    document.querySelector('#headingsCount').innerHTML = entry.headingsCount.toString();
 }
 /**
- * GLOBAL ARTICLE OBJECT -- Rethink this design? 2/8/21
+ * Saves article in Editor to Firestore.
  */
-let cachedArticle;
+function saveArticle() {
+    const editorText = document.getElementById('editor_view').value;
+    const editorArticle = nginw.parseText(editorText);
+    // Overwrite specific fields with new fields from Editor.
+    cachedArticle.song = editorArticle.song;
+    cachedArticle.movie = editorArticle.movie;
+    cachedArticle.title = editorArticle.title;
+    cachedArticle.content = editorArticle.content;
+    firebase.firestore().collection('articles').doc(cachedArticle.id)
+        .withConverter(models.articleConverter)
+        .set(cachedArticle);
+    renderEditorText();
+    loadArticleQuickList();
+}
 /**
  * Populates the GUI editor with contents of an Article.
  *
@@ -106,28 +123,21 @@ Does _**order matter?**_ Nope!`;
         populateEditor(article);
     });
 }
+// function loadArticle () : void {
+//   firebase.firestore().collection('articles').doc('ETLWxrauv2QBbDB4pa9T')
+//     .withConverter(models.articleConverter).get()
+//     .then((doc: any) => {
+//       const article: models.Article = doc.data()
+//       populateEditor(article)
+//     })
+// }
 /**
- * Saves article in Editor to Firestore.
+ * Opens Renderman window.
+ * Only runs once upon initial page load.
  */
-function saveArticle() {
-    const editorText = document.getElementById('editor_view').value;
-    const editorArticle = nginw.parseText(editorText);
-    // Overwrite specific fields with new fields from Editor.
-    cachedArticle.song = editorArticle.song;
-    cachedArticle.movie = editorArticle.movie;
-    cachedArticle.title = editorArticle.title;
-    cachedArticle.content = editorArticle.content;
-    firebase.firestore().collection('articles').doc(cachedArticle.id)
-        .withConverter(models.articleConverter)
-        .set(cachedArticle);
-}
-function loadArticle() {
-    firebase.firestore().collection('articles').doc('ETLWxrauv2QBbDB4pa9T')
-        .withConverter(models.articleConverter).get()
-        .then((doc) => {
-        const article = doc.data();
-        populateEditor(article);
-    });
+function openRender() {
+    renderWindow =
+        window.open('render.html', 'renderTarget', 'height=1600,width=1600,status=yes,toolbar=no,menubar=no,location=no');
 }
 /* Example of Event Delegation */
 document.body.addEventListener('click', e => {
@@ -147,12 +157,13 @@ function handleArticleAction(el) {
 }
 document.getElementById('btnCreateNewArticle').addEventListener('click', createNewArticle);
 document.getElementById('btnSaveArticle').addEventListener('click', saveArticle);
-document.getElementById('btnLoadArticle').addEventListener('click', loadArticle);
+// document.getElementById('btnLoadArticle')!.addEventListener('click', loadArticle)
 document.getElementById('editor_view')
     .addEventListener('keyup', e => {
     // console.log(">> key up", e)
     if (e.ctrlKey && e.key === 'Enter') {
         renderEditorText();
+        saveArticle();
     }
 });
 // This event hander will listen for messages from ALL child windows.
