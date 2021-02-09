@@ -31,5 +31,11 @@ export function ArticleList(articles, user) {
             <hr />`;
     }, '<h2>Articles:</h2>');
 }
+export function ArticleQuickList(articles) {
+    return articles.reduce((acc, article, i) => {
+        return `<button class='btnQuickArticle' data-articleId='${article.id}'>
+      ${i} | ${article.title}</button> ` + acc;
+    }, '');
+}
 export function ReadingPane() {
 }

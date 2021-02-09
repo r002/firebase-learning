@@ -30,15 +30,15 @@ export function renderArticle (entry: Entry) : string {
 }
 
 export function parseText (editorText: string) : {} {
-  console.log(editorText)
+  // console.log(editorText)
 
   const patterns = [
     // /<id>(?<id>.*)<\/id>/,
     // /<author>(?<author>.*)<\/author>/,
     // /<uid>(?<uid>.*)<\/uid>/,
     // /<email>(?<email>.*)<\/email>/,
-    // /<song>(?<song>.*)<\/song>/,
-    // /<movie>(?<movie>.*)<\/movie>/,
+    /<song>(?<song>.*)<\/song>/,
+    /<movie>(?<movie>.*)<\/movie>/,
     /<title>(?<title>.*)<\/title>/,
     // /<category>(?<category>.*)<\/category>/,
     // /<tags>(?<tags>.*)<\/tags>/,
@@ -50,6 +50,8 @@ export function parseText (editorText: string) : {} {
   const matches = re.exec(editorText)
 
   return {
+    song: matches?.groups?.song?.trim() ?? 'No song.',
+    movie: matches?.groups?.movie?.trim() ?? 'No movie.',
     title: matches?.groups?.title?.trim() ?? 'Untitled.',
     content: matches?.groups?.body?.trim() ?? 'No body.'
   }
@@ -67,10 +69,10 @@ export function transformText (editorText: string) : Entry {
   ]
 
   const re = new RegExp(patterns.map(pattern => pattern.source).join('.*?'), 'gs')
-  console.log('>> re:', re)
+  // console.log('>> re:', re)
 
   const matches = re.exec(editorText)
-  console.log('>> matches:', matches)
+  // console.log('>> matches:', matches)
 
   let body: string = matches?.groups?.body?.trim() ?? 'No body.'
 

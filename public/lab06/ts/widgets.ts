@@ -32,6 +32,13 @@ export function ArticleList (articles: Article[], user: User) : string {
   }, '<h2>Articles:</h2>')
 }
 
+export function ArticleQuickList (articles: Article[]) : string {
+  return articles.reduce((acc, article, i) => {
+    return `<button class='btnQuickArticle' data-articleId='${article.id}'>
+      ${i} | ${article.title}</button> ` + acc
+  }, '')
+}
+
 export function ReadingPane () {
 
 }

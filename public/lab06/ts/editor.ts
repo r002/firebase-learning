@@ -3,6 +3,7 @@ import { triggerUserProfile } from './authUtil.js'
 import init from './init.js'
 import * as models from './models.js'
 import * as nginw from './nginw.js'
+import { ArticleQuickList } from './widgets.js'
 
 init('{LAB_NO} | The Editor - Part II')
 
@@ -16,11 +17,11 @@ function initFirebaseAuth () {
 async function authStateObserver (user: any) : Promise<void> {
   if (user) {
     const userPrime: models.User | null = await triggerUserProfile(user)
-    console.log('>>>>>> userPrime:', userPrime)
-    // if (userPrime) {
-    //   renderArticles(userPrime)
-    //   return
-    // }
+    // console.log('>>>>>> userPrime:', userPrime)
+    if (userPrime) {
+      loadArticleQuickList()
+      // return
+    }
   }
   // emptyArticles()
 }
@@ -33,9 +34,27 @@ window.onload = () => {
   openRender()
 }
 
+/**
+ * GLOBAL ARTICLES MAP OBJECT -- Rethink this design? 2/8/21
+ */
+let articlesMap: Map<string, models.Article>
+
+async function loadArticleQuickList () : Promise<void> {
+  const qs = await firebase.firestore().collection('articles')
+    .where('uid', '==', firebase.auth().currentUser.uid)
+    .orderBy('datetime').limit(5)
+    .withConverter(models.articleConverter).get()
+  const articles = qs.docs.map((doc: any) => doc.data())
+  const arr = articles.reduce((acc: any, article: models.Article) => {
+    return [...acc, [article.id, article]]
+  }, [])
+  articlesMap = new Map(arr)
+  document.getElementById('articleQuickList')!.innerHTML = ArticleQuickList(articles)
+}
+
 function renderEditorText () : void {
   const text: string = (<HTMLTextAreaElement>document.getElementById('editor_view')).value
-  console.log('>> editor_view text:', text)
+  // console.log('>> editor_view text:', text)
   const entry: models.Entry = nginw.transformText(text)
   renderWindow!.document.querySelector('#feed')!.innerHTML = nginw.renderFeed(entry)
   renderWindow!.document.querySelector('#render_view')!.innerHTML = nginw.renderArticle(entry)
@@ -95,10 +114,10 @@ Does _**order matter?**_ Nope!`
     firebase.auth().currentUser.uid,
     firebase.auth().currentUser.email,
     'AdW6BBF22AY', // default song
-    'GiipCFnTbE8', // default movie
-    'createNewArticle title!!!!!!!!!',
-    'uncategorized',
-    ['aaaa tag1', 'bbb tag2'],
+    '0WWzgGyAH6Y', // default movie
+    'New Article Title',
+    'Uncategorized',
+    ['Tag01', 'Tag02'],
     defaultContent,
     firebase.firestore.FieldValue.serverTimestamp()
   )
@@ -122,11 +141,12 @@ function saveArticle () : void {
   const editorArticle: any = nginw.parseText(editorText)
 
   // Overwrite specific fields with new fields from Editor.
+  cachedArticle.song = editorArticle.song
+  cachedArticle.movie = editorArticle.movie
   cachedArticle.title = editorArticle.title
   cachedArticle.content = editorArticle.content
 
-  firebase.firestore().collection('articles').doc(cachedArticle.id
-  )
+  firebase.firestore().collection('articles').doc(cachedArticle.id)
     .withConverter(models.articleConverter)
     .set(cachedArticle)
 }
@@ -138,6 +158,23 @@ function loadArticle () : void {
       const article: models.Article = doc.data()
       populateEditor(article)
     })
+}
+
+/* Example of Event Delegation */
+document.body.addEventListener('click', e => {
+  // console.log('>> e.target', e.target)
+  const el = e.target as HTMLElement
+  if (el.className === 'btnQuickArticle') {
+    // console.log('this is a btnArticle class!!!!', el.getAttribute('data-articleId'),
+    //   el.getAttribute('data-action'))
+    handleArticleAction(el)
+  };
+})
+
+function handleArticleAction (el: HTMLElement) : void {
+  // console.log('>> handleArticleAction', el.getAttribute('data-articleId'))
+  const articleId = el.getAttribute('data-articleId')!
+  populateEditor(articlesMap.get(articleId)!)
 }
 
 document.getElementById('btnCreateNewArticle')!.addEventListener('click', createNewArticle)
