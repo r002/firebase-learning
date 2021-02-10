@@ -1,15 +1,8 @@
 // const firebase = (window as any).firebase
 
-export interface Entry {
-  movie: string;
-  song: string; // | undefined;
-  title: string;
-  category: string;
-  tags: string;
-  dt: string;
-  body: string;
-  wordCount: number;
-  headingsCount: number;
+export interface ArticleStats {
+  wordCount: number,
+  headingsCount: number
 }
 
 export class Article {
@@ -26,7 +19,9 @@ export class Article {
     public category: string,
     public tags: string[],
     public content: string,
-    public datetime: any // firebase.firestore.FieldValue // firebase.firestore.Timestamp
+    public datetime: any, // firebase.firestore.FieldValue // firebase.firestore.Timestamp
+    public wordCount: number,
+    public headingsCount: number
   ) {
     // this.datetime = firebase.firestore.FieldValue.serverTimestamp()
     this.tagsStr = tags.reduce((acc, tag) => {
@@ -49,7 +44,9 @@ export const articleConverter = {
       category: article.category,
       tags: article.tags,
       content: article.content,
-      datetime: article.datetime
+      datetime: article.datetime,
+      wordCount: article.wordCount,
+      headingsCount: article.headingsCount
     }
   },
   fromFirestore: function (snapshot: any, options: any) {
@@ -66,7 +63,9 @@ export const articleConverter = {
       data.category,
       data.tags,
       data.content,
-      data.datetime.toDate()
+      data.datetime.toDate(),
+      data.wordCount,
+      data.headingsCount
     )
   }
 }

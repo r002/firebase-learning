@@ -36,10 +36,8 @@ window.onload = () => {
 
 /**
  * GLOBAL ARTICLES MAP OBJECT -- Rethink this design? 2/8/21
- * GLOBAL ARTICLE OBJECT -- Rethink this design? 2/8/21
  */
 let articlesMap: Map<string, models.Article>
-let cachedArticle: models.Article
 
 /**
  * Loads article title buttons.
@@ -58,37 +56,38 @@ async function loadArticleQuickList () : Promise<void> {
 }
 
 /**
- * Extracts the text in the Editor, formats it, and renders the text in the Renderman window.
- */
-function renderEditorText () : void {
-  const text: string = (<HTMLTextAreaElement>document.getElementById('editor_view')).value
-  // console.log('>> editor_view text:', text)
-  const entry: models.Entry = nginw.transformText(text)
-  renderWindow!.document.querySelector('#feed')!.innerHTML = nginw.renderFeed(entry)
-  renderWindow!.document.querySelector('#render_view')!.innerHTML = nginw.renderArticle(entry)
-  document.querySelector('#bodyWordCount')!.innerHTML = entry.wordCount.toString()
-  document.querySelector('#headingsCount')!.innerHTML = entry.headingsCount.toString()
-}
-
-/**
  * Saves article in Editor to Firestore.
+ * It is invoked from two places:
+ * 1. 'Ctrl+Enter' shortcut in the editor.
+ * 2. Clicking in the 'Save' button on the GUI.
  */
 function saveArticle () : void {
   const editorText: string = (<HTMLTextAreaElement>document.getElementById('editor_view')).value
-  const editorArticle: any = nginw.parseText(editorText)
+  const o: any = nginw.parseText(editorText)
+  const stats: models.ArticleStats = nginw.calcArticleStats(o.content)
+  const article = articlesMap.get(o.id)!
 
   // Overwrite specific fields with new fields from Editor.
-  cachedArticle.song = editorArticle.song
-  cachedArticle.movie = editorArticle.movie
-  cachedArticle.title = editorArticle.title
-  cachedArticle.content = editorArticle.content
+  article.song = o.song
+  article.movie = o.movie
+  article.title = o.title
+  article.content = o.content
+  article.wordCount = stats.wordCount
+  article.headingsCount = stats.headingsCount
 
-  firebase.firestore().collection('articles').doc(cachedArticle.id)
+  firebase.firestore().collection('articles').doc(article.id)
     .withConverter(models.articleConverter)
-    .set(cachedArticle)
+    .set(article)
 
-  renderEditorText()
+  sendToRenderman(article)
   loadArticleQuickList()
+}
+
+function sendToRenderman (article: models.Article) : void {
+  renderWindow!.document.querySelector('#feed')!.innerHTML = nginw.renderFeed(article)
+  renderWindow!.document.querySelector('#render_view')!.innerHTML = nginw.renderArticle(article)
+  document.querySelector('#bodyWordCount')!.innerHTML = article.wordCount.toString()
+  document.querySelector('#headingsCount')!.innerHTML = article.headingsCount.toString()
 }
 
 /**
@@ -97,9 +96,9 @@ function saveArticle () : void {
  * @param article
  */
 function populateEditor (article: models.Article) : void {
-  cachedArticle = article
+  // cachedArticle = article
   const s: string = '' +
-// `<id>${article.id}</id>` +
+`<id>${article.id}</id>\n` +
 // `<author>${article.author}</author>` +
 // `<uid>${article.uid}</uid>` +
 // `<email>${article.email}</email>` +
@@ -112,19 +111,25 @@ function populateEditor (article: models.Article) : void {
 
 ${article.content}
 `
+
   // Prepending ';' needed because of cast!
   ;(<HTMLTextAreaElement>document.getElementById('editor_view')).value = s
-  renderEditorText()
+  articlesMap.set(article.id, article)
+  sendToRenderman(article)
+  loadArticleQuickList()
 }
 
 function createNewArticle () : void {
   const defaultContent: string = '' +
 `### Introduction
 
+Greetings there!  Hello Universe!
 An example of _italicized text!_ Formatting is _easy!_
 Here is an example of **bolded text**. Pretty **cool**, right?
 Is it possible to do both? **_Sure it is!_** No problem!
 Does _**order matter?**_ Nope!`
+
+  const stats: models.ArticleStats = nginw.calcArticleStats(defaultContent)
 
   const article = new models.Article(
     'dummy article id - to be replaced by Firestore',
@@ -137,7 +142,9 @@ Does _**order matter?**_ Nope!`
     'Uncategorized',
     ['Tag01', 'Tag02'],
     defaultContent,
-    firebase.firestore.FieldValue.serverTimestamp()
+    firebase.firestore.FieldValue.serverTimestamp(),
+    stats.wordCount,
+    stats.headingsCount
   )
 
   firebase.firestore().collection('articles')
@@ -150,15 +157,6 @@ Does _**order matter?**_ Nope!`
       populateEditor(article)
     })
 }
-
-// function loadArticle () : void {
-//   firebase.firestore().collection('articles').doc('ETLWxrauv2QBbDB4pa9T')
-//     .withConverter(models.articleConverter).get()
-//     .then((doc: any) => {
-//       const article: models.Article = doc.data()
-//       populateEditor(article)
-//     })
-// }
 
 /**
  * Opens Renderman window.
@@ -195,16 +193,18 @@ document.getElementById('editor_view')!
   .addEventListener('keyup', e => {
     // console.log(">> key up", e)
     if (e.ctrlKey && e.key === 'Enter') {
-      renderEditorText()
       saveArticle()
     }
   })
 
-// This event hander will listen for messages from ALL child windows.
-window.addEventListener('message', event => {
-  // console.log('^^^^^^^^^ child message received!', event)
-  if (event.data === 'Trigger from Renderman!') renderEditorText()
-}, false)
+/**
+ * This event hander will listen for messages from ALL child windows.
+ * It fires exactly ONCE when the Renderman window is initially opened.
+ */
+// window.addEventListener('message', event => {
+//   // console.log('^^^^^^^^^ child message received!', event)
+//   if (event.data === 'Trigger from Renderman!') renderEditorText()
+// }, false)
 
 // // Currently commented. During dev, I frequently reload the 'render' page for testing.
 // // Uncomment for production.

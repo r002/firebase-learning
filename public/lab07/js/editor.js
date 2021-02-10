@@ -30,10 +30,8 @@ window.onload = () => {
 };
 /**
  * GLOBAL ARTICLES MAP OBJECT -- Rethink this design? 2/8/21
- * GLOBAL ARTICLE OBJECT -- Rethink this design? 2/8/21
  */
 let articlesMap;
-let cachedArticle;
 /**
  * Loads article title buttons.
  */
@@ -50,33 +48,34 @@ async function loadArticleQuickList() {
     document.getElementById('articleQuickList').innerHTML = ArticleQuickList(articles);
 }
 /**
- * Extracts the text in the Editor, formats it, and renders the text in the Renderman window.
- */
-function renderEditorText() {
-    const text = document.getElementById('editor_view').value;
-    // console.log('>> editor_view text:', text)
-    const entry = nginw.transformText(text);
-    renderWindow.document.querySelector('#feed').innerHTML = nginw.renderFeed(entry);
-    renderWindow.document.querySelector('#render_view').innerHTML = nginw.renderArticle(entry);
-    document.querySelector('#bodyWordCount').innerHTML = entry.wordCount.toString();
-    document.querySelector('#headingsCount').innerHTML = entry.headingsCount.toString();
-}
-/**
  * Saves article in Editor to Firestore.
+ * It is invoked from two places:
+ * 1. 'Ctrl+Enter' shortcut in the editor.
+ * 2. Clicking in the 'Save' button on the GUI.
  */
 function saveArticle() {
     const editorText = document.getElementById('editor_view').value;
-    const editorArticle = nginw.parseText(editorText);
+    const o = nginw.parseText(editorText);
+    const stats = nginw.calcArticleStats(o.content);
+    const article = articlesMap.get(o.id);
     // Overwrite specific fields with new fields from Editor.
-    cachedArticle.song = editorArticle.song;
-    cachedArticle.movie = editorArticle.movie;
-    cachedArticle.title = editorArticle.title;
-    cachedArticle.content = editorArticle.content;
-    firebase.firestore().collection('articles').doc(cachedArticle.id)
+    article.song = o.song;
+    article.movie = o.movie;
+    article.title = o.title;
+    article.content = o.content;
+    article.wordCount = stats.wordCount;
+    article.headingsCount = stats.headingsCount;
+    firebase.firestore().collection('articles').doc(article.id)
         .withConverter(models.articleConverter)
-        .set(cachedArticle);
-    renderEditorText();
+        .set(article);
+    sendToRenderman(article);
     loadArticleQuickList();
+}
+function sendToRenderman(article) {
+    renderWindow.document.querySelector('#feed').innerHTML = nginw.renderFeed(article);
+    renderWindow.document.querySelector('#render_view').innerHTML = nginw.renderArticle(article);
+    document.querySelector('#bodyWordCount').innerHTML = article.wordCount.toString();
+    document.querySelector('#headingsCount').innerHTML = article.headingsCount.toString();
 }
 /**
  * Populates the GUI editor with contents of an Article.
@@ -84,9 +83,9 @@ function saveArticle() {
  * @param article
  */
 function populateEditor(article) {
-    cachedArticle = article;
+    // cachedArticle = article
     const s = '' +
-        // `<id>${article.id}</id>` +
+        `<id>${article.id}</id>\n` +
         // `<author>${article.author}</author>` +
         // `<uid>${article.uid}</uid>` +
         // `<email>${article.email}</email>` +
@@ -100,19 +99,23 @@ function populateEditor(article) {
 ${article.content}
 `;
     document.getElementById('editor_view').value = s;
-    renderEditorText();
+    articlesMap.set(article.id, article);
+    sendToRenderman(article);
+    loadArticleQuickList();
 }
 function createNewArticle() {
     const defaultContent = '' +
         `### Introduction
 
+Greetings there!  Hello Universe!
 An example of _italicized text!_ Formatting is _easy!_
 Here is an example of **bolded text**. Pretty **cool**, right?
 Is it possible to do both? **_Sure it is!_** No problem!
 Does _**order matter?**_ Nope!`;
+    const stats = nginw.calcArticleStats(defaultContent);
     const article = new models.Article('dummy article id - to be replaced by Firestore', firebase.auth().currentUser.displayName, firebase.auth().currentUser.uid, firebase.auth().currentUser.email, 'AdW6BBF22AY', // default song
     '0WWzgGyAH6Y', // default movie
-    'New Article Title', 'Uncategorized', ['Tag01', 'Tag02'], defaultContent, firebase.firestore.FieldValue.serverTimestamp());
+    'New Article Title', 'Uncategorized', ['Tag01', 'Tag02'], defaultContent, firebase.firestore.FieldValue.serverTimestamp(), stats.wordCount, stats.headingsCount);
     firebase.firestore().collection('articles')
         .withConverter(models.articleConverter)
         .add(article)
@@ -123,14 +126,6 @@ Does _**order matter?**_ Nope!`;
         populateEditor(article);
     });
 }
-// function loadArticle () : void {
-//   firebase.firestore().collection('articles').doc('ETLWxrauv2QBbDB4pa9T')
-//     .withConverter(models.articleConverter).get()
-//     .then((doc: any) => {
-//       const article: models.Article = doc.data()
-//       populateEditor(article)
-//     })
-// }
 /**
  * Opens Renderman window.
  * Only runs once upon initial page load.
@@ -162,16 +157,17 @@ document.getElementById('editor_view')
     .addEventListener('keyup', e => {
     // console.log(">> key up", e)
     if (e.ctrlKey && e.key === 'Enter') {
-        renderEditorText();
         saveArticle();
     }
 });
-// This event hander will listen for messages from ALL child windows.
-window.addEventListener('message', event => {
-    // console.log('^^^^^^^^^ child message received!', event)
-    if (event.data === 'Trigger from Renderman!')
-        renderEditorText();
-}, false);
+/**
+ * This event hander will listen for messages from ALL child windows.
+ * It fires exactly ONCE when the Renderman window is initially opened.
+ */
+// window.addEventListener('message', event => {
+//   // console.log('^^^^^^^^^ child message received!', event)
+//   if (event.data === 'Trigger from Renderman!') renderEditorText()
+// }, false)
 // // Currently commented. During dev, I frequently reload the 'render' page for testing.
 // // Uncomment for production.
 // window.onunload = () => {

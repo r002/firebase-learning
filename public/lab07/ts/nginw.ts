@@ -4,52 +4,62 @@
     Returns a JSON object of that content.
 */
 
-import { Entry } from './models.js'
+import { Article, ArticleStats } from './models.js'
 
-export function renderFeed (entry: Entry) : string {
+export function renderFeed (article: Article) : string {
   return `
-        <div class="title-bar side-header"><a href="javascript:goHome();">${entry.dt}</a></div>
-        <iframe width="100%" height="300px" src="https://www.youtube.com/embed/${entry.movie}"
+        <div class="title-bar side-header"><a href="javascript:goHome();">${article.datetime}</a></div>
+        <iframe width="100%" height="300px" src="https://www.youtube.com/embed/${article.movie}"
                 frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" 
                 allowfullscreen></iframe>
-        <iframe width="100%" height="300px" src="https://www.youtube.com/embed/${entry.song}"
+        <iframe width="100%" height="300px" src="https://www.youtube.com/embed/${article.song}"
                 frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" 
                 allowfullscreen></iframe>
         <br /><br />
     `
 }
 
-export function renderArticle (entry: Entry) : string {
+export function renderArticle (article: Article) : string {
+  const body = transformTextToHtml(article.content)
+
   return `
-    <span class="category highlight">${entry.category.toUpperCase()}</span>
-    <div class="title">${entry.title}</div>
-    <div class="title-date">🕒 ${entry.dt}</div>
-    <div class="tags">🏷️ ${entry.tags}</div>
-    ${entry.body}
+    <span class="category highlight">${article.category.toUpperCase()}</span>
+    <div class="title">${article.title}</div>
+    <div class="title-date">🕒 ${article.datetime}</div>
+    <div class="tags">🏷️ ${article.tagsStr}</div>
+    ${body}
   `
 }
 
+/**
+ * Examines a subset of the Editor text and returns an object with
+ * specific properties to overwrite the Article object.
+ * @param editorText
+ */
 export function parseText (editorText: string) : {} {
   // console.log(editorText)
 
+  /**
+   * Perform the text extraction.
+   */
   const patterns = [
-    // /<id>(?<id>.*)<\/id>/,
+    /<id>(?<id>.*)<\/id>/,
     // /<author>(?<author>.*)<\/author>/,
     // /<uid>(?<uid>.*)<\/uid>/,
     // /<email>(?<email>.*)<\/email>/,
     /<song>(?<song>.*)<\/song>/,
     /<movie>(?<movie>.*)<\/movie>/,
     /<title>(?<title>.*)<\/title>/,
-    // /<category>(?<category>.*)<\/category>/,
-    // /<tags>(?<tags>.*)<\/tags>/,
+    /<category>(?<category>.*)<\/category>/,
+    /<tags>(?<tags>.*)<\/tags>/,
     // /<datetime>(?<tags>.*)<\/datetime>/,
     /<\/datetime>(?<body>.*)$/
   ]
-
   const re = new RegExp(patterns.map(pattern => pattern.source).join('.*'), 'gs')
   const matches = re.exec(editorText)
 
   return {
+    id: matches?.groups?.id?.trim() ?? 'No id.',
     song: matches?.groups?.song?.trim() ?? 'No song.',
     movie: matches?.groups?.movie?.trim() ?? 'No movie.',
     title: matches?.groups?.title?.trim() ?? 'Untitled.',
@@ -57,37 +67,29 @@ export function parseText (editorText: string) : {} {
   }
 }
 
-export function transformText (editorText: string) : Entry {
-  const patterns = [
-    /<song>(?<song>.*)<\/song>/,
-    /<movie>(?<movie>.*)<\/movie>/,
-    /<title>(?<title>.*)<\/title>/,
-    /<category>(?<category>.*)<\/category>/,
-    /<tags>(?<tags>.*)<\/tags>/,
-    /<datetime>(?<datetime>.*)<\/datetime>/,
-    /(?<body>.*)$/
-  ]
-
-  const re = new RegExp(patterns.map(pattern => pattern.source).join('.*?'), 'gs')
-  // console.log('>> re:', re)
-
-  const matches = re.exec(editorText)
-  // console.log('>> matches:', matches)
-
-  let body: string = matches?.groups?.body?.trim() ?? 'No body.'
-
+export function calcArticleStats (bodyText: string): ArticleStats {
   /**
-   * Get the word count of the body.
-  */
-  const wordCount: number = body === 'No body.' ? 0 : body.split(/\s+/).length
-  // console.log('>>>> body split arr:', body.split(/\s+/))
+   * Calculate the stats
+   */
+  const wordCount: number = bodyText.split(/\s+/).length
+  // console.log('>>>> bodyText split arr:', bodyText.split(/\s+/))
+  const headingsCount: number = (bodyText.match(/###/g) || []).length
+  return {
+    wordCount: wordCount,
+    headingsCount: headingsCount
+  }
+}
 
-  const headingsCount: number = (body.match(/###/g) || []).length
-
+/**
+ * Transform body into HTML markup to render in Renderman.
+ * @param bodyText
+ */
+export function transformTextToHtml (bodyText: string) : string {
   /**
    *  Perform the formatting.
   */
   // console.log('>>> BODY BEFORE:', body)
+  let body = bodyText.trim()
   body = body.replaceAll(/### .*?\n\n/g, match => `<h3>${match.slice(4, -2)}</h3>`)
   // body = body.replaceAll(/_.*_/g, '<em>$&</em>') // Almost works but doesn't eliminate the underscores. :(
   body = body.replaceAll(/_.*?_/g, match => `<em>${match.slice(1, -1)}</em>`)
@@ -95,19 +97,6 @@ export function transformText (editorText: string) : Entry {
   body = body.replaceAll(/\n/g, '<br />')
   // body = '<br />' + body
 
-  // console.log('>> BODY:', body)
-
-  const entry: Entry = {
-    movie: matches?.groups?.movie ?? 'No movie specified.',
-    song: matches?.groups?.song ?? 'No song specified.',
-    title: matches?.groups?.title ?? 'Untitled',
-    category: matches?.groups?.category ?? 'Uncategorized',
-    tags: matches?.groups?.tags ?? 'Untagged',
-    dt: matches?.groups?.datetime ?? 'Undated.',
-    body: body,
-    wordCount: wordCount,
-    headingsCount: headingsCount
-  }
-  // console.log('>> entry', entry)
-  return entry
+  // console.log('>> BODY AFTER:', body)
+  return body
 }

@@ -1,7 +1,7 @@
 // const firebase = (window as any).firebase
 export class Article {
-    constructor(id, author, uid, email, song, movie, title, category, tags, content, datetime // firebase.firestore.FieldValue // firebase.firestore.Timestamp
-    ) {
+    constructor(id, author, uid, email, song, movie, title, category, tags, content, datetime, // firebase.firestore.FieldValue // firebase.firestore.Timestamp
+    wordCount, headingsCount) {
         this.id = id;
         this.author = author;
         this.uid = uid;
@@ -13,6 +13,8 @@ export class Article {
         this.tags = tags;
         this.content = content;
         this.datetime = datetime;
+        this.wordCount = wordCount;
+        this.headingsCount = headingsCount;
         // this.datetime = firebase.firestore.FieldValue.serverTimestamp()
         this.tagsStr = tags.reduce((acc, tag) => {
             acc += `#${tag}, `;
@@ -33,13 +35,15 @@ export const articleConverter = {
             category: article.category,
             tags: article.tags,
             content: article.content,
-            datetime: article.datetime
+            datetime: article.datetime,
+            wordCount: article.wordCount,
+            headingsCount: article.headingsCount
         };
     },
     fromFirestore: function (snapshot, options) {
         const data = snapshot.data(options);
         const id = snapshot.id;
-        return new Article(id, data.author, data.uid, data.email, data.song, data.movie, data.title, data.category, data.tags, data.content, data.datetime.toDate());
+        return new Article(id, data.author, data.uid, data.email, data.song, data.movie, data.title, data.category, data.tags, data.content, data.datetime.toDate(), data.wordCount, data.headingsCount);
     }
 };
 export var Role;
