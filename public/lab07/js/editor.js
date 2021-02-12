@@ -27,7 +27,18 @@ let renderWindow;
 window.onload = () => {
     // console.log('>> Ready!')
     openRender();
+    // const myObj = {
+    //   adele: 'hello'
+    // }
+    const arr = [1, 2, 3];
+    myFunc(arr);
+    console.log(arr); // { adele: 'hello' }
 };
+function myFunc(myParam) {
+    // myParam = {}
+    // myParam.adele = 'rolling in the deep'
+    myParam[0] = 9;
+}
 /**
  * GLOBAL ARTICLES MAP OBJECT -- Rethink this design? 2/8/21
  */
@@ -69,7 +80,8 @@ function saveArticle() {
         .withConverter(models.articleConverter)
         .set(article);
     sendToRenderman(article);
-    loadArticleQuickList();
+    loadArticleQuickList(); // TODO: Only run this if the article's 'title' has changed! 2/9/21
+    // Otherwise, we're needlessly making Firestore doc reads.
 }
 function sendToRenderman(article) {
     renderWindow.document.querySelector('#feed').innerHTML = nginw.renderFeed(article);
@@ -101,7 +113,6 @@ ${article.content}
     document.getElementById('editor_view').value = s;
     articlesMap.set(article.id, article);
     sendToRenderman(article);
-    loadArticleQuickList();
 }
 function createNewArticle() {
     const defaultContent = '' +
@@ -124,6 +135,7 @@ Does _**order matter?**_ Nope!`;
         article.datetime = new Date(); // Only on new article creation, overwrite 'datetime'
         console.log('>> doc added!', docRef.id, article);
         populateEditor(article);
+        loadArticleQuickList();
     });
 }
 /**
@@ -153,11 +165,20 @@ function handleArticleAction(el) {
 document.getElementById('btnCreateNewArticle').addEventListener('click', createNewArticle);
 document.getElementById('btnSaveArticle').addEventListener('click', saveArticle);
 // document.getElementById('btnLoadArticle')!.addEventListener('click', loadArticle)
+const elEditorView = document.getElementById('editor_view');
 document.getElementById('editor_view')
     .addEventListener('keyup', e => {
     // console.log(">> key up", e)
     if (e.ctrlKey && e.key === 'Enter') {
         saveArticle();
+    }
+    else if ((e.ctrlKey && e.key === 'b')) {
+        console.log('>> trigger bold formatting! Section:', window.getSelection());
+        const selectedText = window.getSelection()?.toString() ?? '';
+        elEditorView.setRangeText(`**${selectedText}**`);
+        if (selectedText === '') {
+            elEditorView.setSelectionRange(elEditorView.selectionStart + 2, elEditorView.selectionStart + 2);
+        }
     }
 });
 /**
