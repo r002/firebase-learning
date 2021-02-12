@@ -209,12 +209,22 @@ document.getElementById('editor_view')!
       elEditorView.setRangeText(`_${selectedText}_`)
       elEditorView.setSelectionRange(elEditorView.selectionStart + 1,
         elEditorView.selectionStart + 1 + selectedText.length)
-    } else if ((e.altKey && e.key === 'k')) { // 'e.ctrlKey' doesn't work!
-      elEditorView.setRangeText(`[${selectedText}](url)`)
-      elEditorView.setSelectionRange(elEditorView.selectionStart + selectedText.length + 3,
-        elEditorView.selectionStart + selectedText.length + 6)
     }
   })
+
+/** In order to override Chrome's default keyboard shortcuts:
+  * https://stackoverflow.com/questions/3680919/overriding-browsers-keyboard-shortcuts
+  */
+  document.getElementById('editor_view')!
+    .addEventListener('keydown', e => {
+      const selectedText = window.getSelection()?.toString() ?? ''
+      if ((e.ctrlKey && e.key === 'k')) {
+        elEditorView.setRangeText(`[${selectedText}](url)`)
+        elEditorView.setSelectionRange(elEditorView.selectionStart + selectedText.length + 3,
+          elEditorView.selectionStart + selectedText.length + 6)
+        e.preventDefault()
+      }
+    })
 
 /**
  * This event hander will listen for messages from ALL child windows.
