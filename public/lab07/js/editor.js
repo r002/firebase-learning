@@ -27,18 +27,7 @@ let renderWindow;
 window.onload = () => {
     // console.log('>> Ready!')
     openRender();
-    // const myObj = {
-    //   adele: 'hello'
-    // }
-    const arr = [1, 2, 3];
-    myFunc(arr);
-    console.log(arr); // { adele: 'hello' }
 };
-function myFunc(myParam) {
-    // myParam = {}
-    // myParam.adele = 'rolling in the deep'
-    myParam[0] = 9;
-}
 /**
  * GLOBAL ARTICLES MAP OBJECT -- Rethink this design? 2/8/21
  */
@@ -169,16 +158,19 @@ const elEditorView = document.getElementById('editor_view');
 document.getElementById('editor_view')
     .addEventListener('keyup', e => {
     // console.log(">> key up", e)
+    const selectedText = window.getSelection()?.toString() ?? '';
+    // console.log('>> Trigger bold formatting! Selection:', window.getSelection())
+    // console.log('>> Test selection toString():', window.getSelection().toString() === '')
     if (e.ctrlKey && e.key === 'Enter') {
         saveArticle();
     }
     else if ((e.ctrlKey && e.key === 'b')) {
-        console.log('>> trigger bold formatting! Section:', window.getSelection());
-        const selectedText = window.getSelection()?.toString() ?? '';
         elEditorView.setRangeText(`**${selectedText}**`);
-        if (selectedText === '') {
-            elEditorView.setSelectionRange(elEditorView.selectionStart + 2, elEditorView.selectionStart + 2);
-        }
+        elEditorView.setSelectionRange(elEditorView.selectionStart + 2, elEditorView.selectionStart + 2 + selectedText.length);
+    }
+    else if ((e.ctrlKey && e.key === 'i')) {
+        elEditorView.setRangeText(`_${selectedText}_`);
+        elEditorView.setSelectionRange(elEditorView.selectionStart + 1, elEditorView.selectionStart + 1 + selectedText.length);
     }
 });
 /**
