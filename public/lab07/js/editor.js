@@ -159,7 +159,7 @@ document.getElementById('editor_view')
     .addEventListener('keyup', e => {
     // console.log(">> key up", e)
     const selectedText = window.getSelection()?.toString() ?? '';
-    // console.log('>> Trigger bold formatting! Selection:', window.getSelection())
+    // console.log('>> Trigger keyboard shortcut! Selection:', window.getSelection())
     // console.log('>> Test selection toString():', window.getSelection().toString() === '')
     if (e.ctrlKey && e.key === 'Enter') {
         saveArticle();
@@ -171,6 +171,10 @@ document.getElementById('editor_view')
     else if ((e.ctrlKey && e.key === 'i')) {
         elEditorView.setRangeText(`_${selectedText}_`);
         elEditorView.setSelectionRange(elEditorView.selectionStart + 1, elEditorView.selectionStart + 1 + selectedText.length);
+    }
+    else if ((e.altKey && e.key === 'k')) { // 'e.ctrlKey' doesn't work!
+        elEditorView.setRangeText(`[${selectedText}](url)`);
+        elEditorView.setSelectionRange(elEditorView.selectionStart + selectedText.length + 3, elEditorView.selectionStart + selectedText.length + 6);
     }
 });
 /**
